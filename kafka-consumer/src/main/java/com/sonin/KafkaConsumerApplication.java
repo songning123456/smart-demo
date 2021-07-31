@@ -1,4 +1,4 @@
-package com.kafka.kafkaconsumer;
+package com.sonin;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
