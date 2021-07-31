@@ -9,12 +9,11 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.sonin</groupId>
-    <artifactId>smart-demo</artifactId>
+    <groupId>com.kafka</groupId>
+    <artifactId>kafka-consumer</artifactId>
     <version>1.0.0</version>
-    <name>smart-demo</name>
-    <description>smart-demo project for Spring Boot</description>
-    <packaging>pom</packaging>
+    <name>kafka-consumer</name>
+    <description>kafka-consumer project for Spring Boot</description>
 
     <properties>
         <java.version>1.8</java.version>
@@ -40,10 +39,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <modules>
-        <module>kafka-producer</module>
-        <module>kafka-consumer</module>
-    </modules>
 
 </project>
