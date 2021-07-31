@@ -13,9 +13,8 @@ class KafkaProducerApplicationTests {
 
     @Test
     void contextLoads() {
-        for (int i = 0; i < 10000; i++) {
-            long currentTime = System.currentTimeMillis();
-            kafkaService.send("topic-test", "key" + currentTime, "value" + currentTime);
+        for (int i = 0; i < 100; i++) {
+            kafkaService.send("topic-test", "key" + i, "value" + i);
             try {
                 Thread.sleep(500);
             } catch (Exception e) {
