@@ -1,6 +1,6 @@
-package com.sonin.service;
+package com.sonin.dubboapi.service;
 
-import com.sonin.entity.User;
+import com.sonin.dubboapi.entity.User;
 
 /**
  * @author sonin

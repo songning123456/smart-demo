@@ -1,7 +1,7 @@
-package com.sonin.service.impl;
+package com.sonin.kafkaproducer.service.impl;
 
-import com.sonin.entity.KafkaListenableFutureCallback;
-import com.sonin.service.KafkaService;
+import com.sonin.kafkaproducer.entity.KafkaListenableFutureCallback;
+import com.sonin.kafkaproducer.service.KafkaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;

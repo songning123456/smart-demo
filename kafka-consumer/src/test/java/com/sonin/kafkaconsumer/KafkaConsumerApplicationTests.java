@@ -1,4 +1,4 @@
-package com.sonin;
+package com.sonin.kafkaconsumer;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

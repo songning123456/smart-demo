@@ -1,4 +1,4 @@
-package com.sonin.entity;
+package com.sonin.kafkaproducer.entity;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.support.SendResult;

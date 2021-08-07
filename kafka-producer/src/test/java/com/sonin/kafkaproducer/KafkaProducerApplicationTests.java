@@ -1,6 +1,6 @@
-package com.sonin;
+package com.sonin.kafkaproducer;
 
-import com.sonin.service.KafkaService;
+import com.sonin.kafkaproducer.service.KafkaService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

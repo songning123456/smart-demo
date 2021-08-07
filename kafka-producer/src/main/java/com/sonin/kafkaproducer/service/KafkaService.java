@@ -1,4 +1,4 @@
-package com.sonin.service;
+package com.sonin.kafkaproducer.service;
 
 /**
  * @author sonin

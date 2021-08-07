@@ -1,4 +1,4 @@
-package com.sonin.entity;
+package com.sonin.dubboapi.entity;
 
 import lombok.Data;
 

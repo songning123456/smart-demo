@@ -1,16 +1,13 @@
-package com.sonin;
+package com.sonin.kafkaconsumer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/**
- * @author sonin
- * @date 2021/8/7 8:55
- */
 @SpringBootApplication
-public class DubboProviderApplication {
+public class KafkaConsumerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DubboProviderApplication.class, args);
+        SpringApplication.run(KafkaConsumerApplication.class, args);
     }
+
 }
