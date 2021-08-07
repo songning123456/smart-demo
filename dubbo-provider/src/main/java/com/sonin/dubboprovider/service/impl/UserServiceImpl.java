@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Service
 public class UserServiceImpl implements UserService {
+
     @Override
     public User getUserById(String id) {
         User user = new User();
@@ -20,4 +21,5 @@ public class UserServiceImpl implements UserService {
         user.setAge(27);
         return user;
     }
+
 }
