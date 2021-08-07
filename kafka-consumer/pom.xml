@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.kafka</groupId>
+    <groupId>com.sonin.kafka</groupId>
     <artifactId>kafka-consumer</artifactId>
     <version>1.0.0</version>
     <name>kafka-consumer</name>
@@ -25,14 +25,5 @@
             <artifactId>spring-kafka</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
