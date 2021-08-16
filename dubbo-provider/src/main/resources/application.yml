@@ -13,11 +13,12 @@ dubbo:
     name: dubbo-provider #当前服务/应用的名字
   registry: #注册中心的协议和地址
     protocol: zookeeper
-    address: 192.168.8.110:2181
+    # hw-sonin
+    # address: 192.168.8.110:2181
+    # jksj
+    address: 192.168.2.110:2181
   protocol: #通信规则(通信协议和接口)
     name: dubbo
     port: 20880
   monitor: #连接监控中心
     protocol: registry
-  scan: #开启包扫描，可替代@EnableDubbo注解
-    base-packages: com.sonin.dubboprovider

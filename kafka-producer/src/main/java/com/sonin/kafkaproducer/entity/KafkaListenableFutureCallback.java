@@ -28,6 +28,6 @@ public class KafkaListenableFutureCallback implements ListenableFutureCallback<S
 
     @Override
     public void onSuccess(SendResult<String, String> sendResult) {
-        log.error("发送消息成功 => topic: {}, key: {}, data: {}, sendResult: {},", topic, key, data, sendResult.toString());
+        log.info("发送消息成功 => topic: {}, key: {}, data: {}, sendResult: {},", topic, key, data, sendResult.toString());
     }
 }
