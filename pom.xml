@@ -73,6 +73,7 @@
     </build>
 
     <modules>
+        <module>common-api</module>
         <module>kafka-producer</module>
         <module>kafka-consumer</module>
         <module>dubbo-api</module>
