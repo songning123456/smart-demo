@@ -10,10 +10,4 @@
     <name>common-api</name>
     <description>common-api project for Spring Boot</description>
 
-    <parent>
-        <artifactId>smart-demo</artifactId>
-        <groupId>com.sonin</groupId>
-        <version>1.0.0</version>
-    </parent>
-
 </project>
