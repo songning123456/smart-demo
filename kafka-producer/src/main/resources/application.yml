@@ -23,6 +23,6 @@ spring:
       acks: 1
 
 logging:
-  config: classpath:log4j2-spring.xml
+  config: classpath:logback-spring.xml
   level:
     cn.jay.repository: trace

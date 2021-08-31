@@ -1,0 +1,9 @@
+server:
+  port: 6000
+  servlet:
+    context-path: /sentinel-server
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    cn.jay.repository: trace

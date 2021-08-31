@@ -28,6 +28,7 @@
         <module>dubbo-consumer</module>
         <module>flowable-server</module>
         <module>swagger-server</module>
+        <module>sentinel-server</module>
     </modules>
 
 </project>
