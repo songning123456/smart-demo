@@ -15,7 +15,6 @@
     <version>1.0.0</version>
     <name>sentinel-server</name>
     <description>sentinel-server project for Spring Boot</description>
-
     <dependencies>
         <!-- lombok -->
         <dependency>
@@ -37,6 +36,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-core</artifactId>
+            <version>1.8.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -47,6 +51,5 @@
             </plugin>
         </plugins>
     </build>
-
 
 </project>
