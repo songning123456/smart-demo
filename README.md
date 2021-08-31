@@ -6,6 +6,7 @@
 * dubbo-consumer: 6003
 * flowable-server: 6004
 * swagger-server: 6005
+* sentinel-server: 6006
 
 
 #### git Unable to access ‘https://github.com/xxxx/xxxx.git/’:OpenSSL SSL_read:Connection was reset

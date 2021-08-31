@@ -1,5 +1,5 @@
 server:
-  port: 6000
+  port: 6006
   servlet:
     context-path: /sentinel-server
 
