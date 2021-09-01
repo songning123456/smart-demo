@@ -1,6 +1,7 @@
 package com.sonin.sentinelserver.controller;
 
 import com.alibaba.csp.sentinel.Entry;
+import com.alibaba.csp.sentinel.SphO;
 import com.alibaba.csp.sentinel.SphU;
 import com.alibaba.csp.sentinel.Tracer;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
@@ -54,6 +55,25 @@ public class UserController {
             if (entry != null) {
                 entry.exit();
             }
+        }
+        return user;
+    }
+
+    @GetMapping("/getByBool")
+    public User getByBoolCtrl() {
+        int id = 1;
+        User user;
+        log.info("all总共调用了{}次", all.incrementAndGet());
+        if (SphO.entry("getById")) {
+            log.info("success总共调用了{}次", success.incrementAndGet());
+            try {
+                user = userService.getUserById(id);
+            } finally {
+                SphO.exit();
+            }
+        } else {
+            log.info("error总共调用了{}次", error.incrementAndGet());
+            user = new User(id, "资源访问被限流");
         }
         return user;
     }
