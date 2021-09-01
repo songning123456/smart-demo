@@ -16,7 +16,7 @@ public class SentinelServerApplication {
         SpringApplication.run(SentinelServerApplication.class, args);
 
         //初始化限流规则
-        SentinelUtil.initFlowQpsRule("getById", 0, RuleConstant.FLOW_GRADE_QPS, "default");
+        SentinelUtil.initFlowQpsRule("getById", 20, RuleConstant.FLOW_GRADE_QPS, "default");
     }
 
 }

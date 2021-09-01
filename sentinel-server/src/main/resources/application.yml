@@ -7,3 +7,5 @@ logging:
   config: classpath:logback-spring.xml
   level:
     cn.jay.repository: trace
+
+# VM options: -Dcsp.sentinel.log.dir=E:\\Project\\logs\\sentinel-server

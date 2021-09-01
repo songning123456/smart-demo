@@ -31,8 +31,9 @@ public class UserController {
     private static AtomicLong success = new AtomicLong(0);
     private static AtomicLong error = new AtomicLong(0);
 
-    @GetMapping("/getById")
-    public User getByIdCtrl(@RequestParam(value = "id") Integer id) {
+    @GetMapping("/getByCatch")
+    public User getByCatchCtrl() {
+        int id = 1;
         log.info("all总共调用了{}次", all.incrementAndGet());
         User user = null;
         Entry entry = null;
