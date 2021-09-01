@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,7 +39,7 @@ public class UserController {
         Entry entry = null;
         try {
             // 被保护的业务逻辑
-            entry = SphU.entry("getById");
+            entry = SphU.entry("testSentinel");
             log.info("success总共调用了{}次", success.incrementAndGet());
             user = userService.getUserById(id);
         } catch (BlockException e) {
@@ -64,7 +63,7 @@ public class UserController {
         int id = 1;
         User user;
         log.info("all总共调用了{}次", all.incrementAndGet());
-        if (SphO.entry("getById")) {
+        if (SphO.entry("testSentinel")) {
             log.info("success总共调用了{}次", success.incrementAndGet());
             try {
                 user = userService.getUserById(id);
@@ -75,6 +74,14 @@ public class UserController {
             log.info("error总共调用了{}次", error.incrementAndGet());
             user = new User(id, "资源访问被限流");
         }
+        return user;
+    }
+
+    @GetMapping("/getByAop")
+    public User getByAopCtrl() {
+        User user;
+        user = userService.getUserById2((int) (all.incrementAndGet() % 2));
+        System.out.println(user.getName());
         return user;
     }
 

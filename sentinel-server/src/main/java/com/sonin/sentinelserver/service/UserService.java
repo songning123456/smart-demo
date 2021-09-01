@@ -9,4 +9,6 @@ import com.sonin.sentinelserver.entity.User;
 public interface UserService {
 
     User getUserById(Integer id);
+
+    User getUserById2(Integer id);
 }
