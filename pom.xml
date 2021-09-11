@@ -29,6 +29,7 @@
         <module>flowable-server</module>
         <module>swagger-server</module>
         <module>sentinel-server</module>
+        <module>leetcode-api</module>
     </modules>
 
 </project>
