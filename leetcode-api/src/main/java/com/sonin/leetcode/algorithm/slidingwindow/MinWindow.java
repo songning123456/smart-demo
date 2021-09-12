@@ -8,7 +8,7 @@ import java.util.Map;
  * @date 2021/9/11 14:45
  * 滑动窗口-最小覆盖子串
  */
-public class MinWindowAlgorithm {
+public class MinWindow {
 
     public String minWindow(String s, String t) {
         // t中字符出现次数
@@ -60,8 +60,8 @@ public class MinWindowAlgorithm {
     public static void main(String[] args) {
         String s = "ADOBECODEBANC";
         String t = "ABC";
-        MinWindowAlgorithm minWindowAlgorithm = new MinWindowAlgorithm();
-        String result = minWindowAlgorithm.minWindow(s, t);
+        MinWindow minWindow = new MinWindow();
+        String result = minWindow.minWindow(s, t);
         System.out.println(result);
     }
 
