@@ -30,6 +30,7 @@
         <module>swagger-server</module>
         <module>sentinel-server</module>
         <module>leetcode-api</module>
+        <module>ssmframework-api</module>
     </modules>
 
 </project>
