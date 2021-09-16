@@ -10,5 +10,13 @@
     <name>ssmframework-api</name>
     <description>ssmframework-api project for Spring Boot</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>9.0.50</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
 </project>
