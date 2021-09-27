@@ -1,21 +1,19 @@
 package com.sonin.leetcode.demo.DFS;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author sonin
- * @date 2021/9/20 15:50
+ * @date 2021/9/27 8:39
  */
 public class Permute {
 
-    private List<List<Integer>> res = new LinkedList<>();
+    private List<List<Integer>> res = new ArrayList<>();
 
-    private void backtrack(int[] nums, LinkedList<Integer> track) {
+    private void backtrack(int[] nums, List<Integer> track) {
         if (track.size() == nums.length) {
             res.add(new ArrayList<>(track));
-            return;
         }
         for (int num : nums) {
             if (track.contains(num)) {
@@ -23,12 +21,12 @@ public class Permute {
             }
             track.add(num);
             backtrack(nums, track);
-            track.removeLast();
+            track.remove(track.size() - 1);
         }
     }
 
     public List<List<Integer>> permute(int[] nums) {
-        LinkedList<Integer> track = new LinkedList<>();
+        List<Integer> track = new ArrayList<>();
         backtrack(nums, track);
         return res;
     }

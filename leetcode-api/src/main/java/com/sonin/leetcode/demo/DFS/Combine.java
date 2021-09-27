@@ -1,30 +1,30 @@
 package com.sonin.leetcode.demo.DFS;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
  * @author sonin
- * @date 2021/9/21 9:48
+ * @date 2021/9/27 8:44
  */
 public class Combine {
 
     private List<List<Integer>> res = new ArrayList<>();
 
-    private void backtrack(int n, int k, int start, LinkedList<Integer> track) {
-        if (k == track.size()) {
+    private void backtrack(int n, int k, int start, List<Integer> track) {
+        if (track.size() == k) {
             res.add(new ArrayList<>(track));
+            return;
         }
         for (int i = start; i <= n; i++) {
             track.add(i);
             backtrack(n, k, i + 1, track);
-            track.removeLast();
+            track.remove(track.size() - 1);
         }
     }
 
     public List<List<Integer>> combine(int n, int k) {
-        LinkedList<Integer> track = new LinkedList<>();
+        List<Integer> track = new ArrayList<>();
         backtrack(n, k, 1, track);
         return res;
     }
@@ -35,4 +35,5 @@ public class Combine {
         List<List<Integer>> res = combine.combine(n, k);
         System.out.println(res);
     }
+
 }
