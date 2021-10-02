@@ -77,7 +77,7 @@ public class BeanUtils {
         Map<String, Method> targetMap = new HashMap<>(targetMethods.length >> 1);
         // 遍历
         for (S src : srcList) {
-            T target = (T) targetClass.newInstance();
+            T target = targetClass.newInstance();
             if (srcMap.isEmpty() && targetMap.isEmpty()) {
                 for (Method srcMethod : srcMethods) {
                     String srcMethodName = srcMethod.getName();
