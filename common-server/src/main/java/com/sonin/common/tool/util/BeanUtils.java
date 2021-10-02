@@ -1,5 +1,7 @@
 package com.sonin.common.tool.util;
 
+import com.alibaba.fastjson.JSON;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,14 +15,13 @@ import java.util.Map;
 public class BeanUtils {
 
     /**
-     * Java Bean与Bean之间的转换
+     * Bean => Bean
      *
      * @param src
      * @param targetClass
      * @throws Exception
      */
     public static <S, T> T bean2Bean(S src, Class<?> targetClass) throws Exception {
-
         // 判空
         if (src == null || targetClass == null) {
             return null;
@@ -57,8 +58,17 @@ public class BeanUtils {
         return target;
     }
 
+    /**
+     * List<S> => List<T>
+     *
+     * @param srcList
+     * @param targetClass
+     * @param <S>
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
     public static <S, T> List<T> beans2Beans(List<S> srcList, Class<T> targetClass) throws Exception {
-
         // 判空
         if (srcList == null || targetClass == null) {
             return null;
@@ -116,6 +126,84 @@ public class BeanUtils {
         targetMap.clear();
         // 返回目标对象
         return targetList;
+    }
+
+    /**
+     * Map => Bean
+     *
+     * @param map
+     * @param targetClass
+     * @param <T>
+     * @return
+     */
+    public static <T> T map2Bean(Map map, Class<T> targetClass) throws Exception {
+        // 判空
+        if (map == null || targetClass == null) {
+            return null;
+        }
+        // 判空
+        if (map.isEmpty()) {
+            return targetClass.newInstance();
+        }
+        return JSON.parseObject(JSON.toJSONString(map), targetClass);
+    }
+
+    /**
+     * Maps => Beans
+     *
+     * @param mapList
+     * @param targetClass
+     * @param <T>
+     * @return
+     */
+    public static <T> List<T> maps2Beans(List<Map> mapList, Class<T> targetClass) {
+        // 判空
+        if (mapList == null || targetClass == null) {
+            return null;
+        }
+        // 判空
+        if (mapList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<T> targetList = new ArrayList<>();
+        mapList.forEach(map -> targetList.add(JSON.parseObject(JSON.toJSONString(map), targetClass)));
+        return targetList;
+    }
+
+    /**
+     * Bean => Map
+     *
+     * @param src
+     * @param <S>
+     * @return
+     */
+    public static <S> Map bean2Map(S src) {
+        // 判空
+        if (src == null) {
+            return new HashMap();
+        }
+        return JSON.parseObject(JSON.toJSONString(src), Map.class);
+    }
+
+    /**
+     * Beans => Maps
+     *
+     * @param srcList
+     * @param <S>
+     * @return
+     */
+    public static <S> List<Map> beans2Maps(List<S> srcList) {
+        // 判空
+        if (srcList == null) {
+            return null;
+        }
+        // 判空
+        if (srcList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Map> mapList = new ArrayList<>();
+        srcList.forEach(src -> mapList.add(JSON.parseObject(JSON.toJSONString(src), Map.class)));
+        return mapList;
     }
 
 }
