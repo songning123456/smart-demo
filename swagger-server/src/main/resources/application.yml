@@ -1,9 +1,0 @@
-server:
-  port: 6005
-  servlet:
-    context-path: /swagger-server
-
-logging:
-  config: classpath:logback-spring.xml
-  level:
-    cn.jay.repository: trace
