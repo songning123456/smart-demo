@@ -178,8 +178,11 @@ public class BeanUtils {
         if (mapList.isEmpty()) {
             return new ArrayList<>();
         }
+        // 构建对象集合
         List<T> targetList = new ArrayList<>();
+        // fieldName:method 缓存
         Map<String, Method> methodMap = new HashMap<>();
+        // 遍历存储
         for (Map<String, Object> map : mapList) {
             T target = targetClass.newInstance();
             if (methodMap.isEmpty()) {
@@ -202,6 +205,7 @@ public class BeanUtils {
                     method.invoke(target, map.get(fieldName));
                 }
             }
+            targetList.add(target);
         }
         // 清理缓存
         methodMap.clear();
@@ -250,6 +254,7 @@ public class BeanUtils {
             return new ArrayList<>();
         }
         List<Map<String, Object>> mapList = new ArrayList<>();
+        // 字段属性缓存
         List<Field> fieldList = new ArrayList<>();
         // 遍历存储
         for (S src : srcList) {

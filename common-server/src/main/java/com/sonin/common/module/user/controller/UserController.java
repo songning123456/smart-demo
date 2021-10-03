@@ -24,10 +24,30 @@ public class UserController {
 
     @PostMapping("/queryUser")
     public UserVO queryUserCtrl(@RequestBody UserDTO userDTO) throws Exception {
-        // demo1
-        User user = BeanUtils.bean2Bean(userDTO, User.class);
-        UserVO userVO = BeanUtils.bean2Bean(user, UserVO.class);
-        return userVO;
+        // map => bean
+        Map<String, Object> map1 = new HashMap<>();
+        map1.put("id", "id1");
+        map1.put("name", "name1");
+        UserVO userVO1 = BeanUtils.map2Bean(map1, UserVO.class);
+        // maps => beans
+        Map<String, Object> map2 = new HashMap<>();
+        map2.put("id", "id2");
+        map2.put("name", "name2");
+        List<Map<String, Object>> mapList1 = new ArrayList<>();
+        mapList1.add(map1);
+        mapList1.add(map2);
+        List<UserVO> userVOList1 = BeanUtils.maps2Beans(mapList1, UserVO.class);
+        // bean => map
+        Map<String, Object> map3 = BeanUtils.bean2Map(userDTO);
+        // beans => maps
+        List<UserDTO> userDTOList = new ArrayList<>();
+        userDTOList.add(userDTO);
+        UserDTO userDTO2 = new UserDTO();
+        userDTO2.setId("id2");
+        userDTO2.setName("name2");
+        userDTOList.add(userDTO2);
+        List<Map<String, Object>> mapList = BeanUtils.beans2Maps(userDTOList);
+        return userVO1;
     }
 
 }
