@@ -4,7 +4,9 @@ import com.sonin.common.tool.annotation.BeanAnno;
 import com.sonin.common.tool.service.IBeanConvertCallback;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,6 +16,17 @@ import java.util.Map;
  */
 public class BeanExtUtils {
 
+    /**
+     * bean => bean 自定义实现值
+     *
+     * @param src
+     * @param targetClass
+     * @param iBeanConvertCallback
+     * @param <S>
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
     public static <S, T> T bean2Bean(S src, Class<T> targetClass, IBeanConvertCallback iBeanConvertCallback) throws Exception {
         // 判空
         if (src == null || targetClass == null || iBeanConvertCallback == null) {
@@ -59,4 +72,100 @@ public class BeanExtUtils {
         // 返回目标对象
         return target;
     }
+
+    /**
+     * beans => beans 自定义实现值
+     *
+     * @param srcList
+     * @param targetClass
+     * @param iBeanConvertCallback
+     * @param <S>
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
+    public static <S, T> List<T> beans2Beans(List<S> srcList, Class<T> targetClass, IBeanConvertCallback iBeanConvertCallback) throws Exception {
+        // 判空
+        if (srcList == null || targetClass == null) {
+            return null;
+        }
+        // 判空
+        if (srcList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        // 创建目标对象
+        List<T> targetList = new ArrayList<>();
+        // src、target的Field缓存
+        List<Field> srcFieldList = new ArrayList<>();
+        List<Field> targetFieldList = new ArrayList<>();
+        for (S src : srcList) {
+            T target = targetClass.newInstance();
+            if (srcFieldList.isEmpty() && targetFieldList.isEmpty()) {
+                // 缓存
+                Map<String, Object> srcMap = new HashMap<>();
+                Map<String, Object> annoMap = new HashMap<>();
+                Class tmpSrcClass = src.getClass();
+                // 遍历src对象
+                while (tmpSrcClass != null && !"java.lang.Object".equals(tmpSrcClass.getName())) {
+                    Field[] srcFields = tmpSrcClass.getDeclaredFields();
+                    for (Field srcField : srcFields) {
+                        srcField.setAccessible(true);
+                        srcFieldList.add(srcField);
+                        srcMap.put(srcField.getName(), srcField.get(src));
+                        BeanAnno beanAnno = srcField.getAnnotation(BeanAnno.class);
+                        if (beanAnno != null && !"".equals(beanAnno.targetFieldName())) {
+                            annoMap.put(beanAnno.targetFieldName(), srcField.get(src));
+                        }
+                    }
+                    tmpSrcClass = tmpSrcClass.getSuperclass();
+                }
+                Class tmpTargetClass = targetClass;
+                // 遍历target对象
+                while (!"java.lang.Object".equals(tmpTargetClass.getName())) {
+                    Field[] targetFields = tmpTargetClass.getDeclaredFields();
+                    for (Field targetField : targetFields) {
+                        targetField.setAccessible(true);
+                        targetFieldList.add(targetField);
+                        if (annoMap.get(targetField.getName()) != null) {
+                            Object targetFieldVal = iBeanConvertCallback.doBeanConvert(targetField.getName(), annoMap.get(targetField.getName()));
+                            targetField.set(target, targetFieldVal);
+                        } else {
+                            targetField.set(target, srcMap.get(targetField.getName()));
+                        }
+                    }
+                    tmpTargetClass = tmpTargetClass.getSuperclass();
+                }
+                // 清理缓存
+                srcMap.clear();
+                annoMap.clear();
+            } else {
+                // 缓存
+                Map<String, Object> srcMap = new HashMap<>();
+                Map<String, Object> annoMap = new HashMap<>();
+                for (Field srcField : srcFieldList) {
+                    srcMap.put(srcField.getName(), srcField.get(src));
+                    BeanAnno beanAnno = srcField.getAnnotation(BeanAnno.class);
+                    if (beanAnno != null && !"".equals(beanAnno.targetFieldName())) {
+                        annoMap.put(beanAnno.targetFieldName(), srcField.get(src));
+                    }
+                }
+                for (Field targetField : targetFieldList) {
+                    if (annoMap.get(targetField.getName()) != null) {
+                        Object targetFieldVal = iBeanConvertCallback.doBeanConvert(targetField.getName(), annoMap.get(targetField.getName()));
+                        targetField.set(target, targetFieldVal);
+                    } else {
+                        targetField.set(target, srcMap.get(targetField.getName()));
+                    }
+                }
+                // 清理缓存
+                srcMap.clear();
+                annoMap.clear();
+            }
+            targetList.add(target);
+        }
+        srcFieldList.clear();
+        targetFieldList.clear();
+        return targetList;
+    }
+
 }

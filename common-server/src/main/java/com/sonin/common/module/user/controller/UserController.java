@@ -24,26 +24,42 @@ import java.util.Map;
 @RequestMapping("/user")
 public class UserController {
 
-    private static Map<String, Object> aliasMap = new HashMap<>();
-    private static Map<String, Object> idMap = new HashMap<>();
+    private static Map<String, Object> nameAliasMap = new HashMap<>();
+    private static Map<String, Object> idAliasMap = new HashMap<>();
 
     static {
-        aliasMap.put("123", "456");
-        idMap.put("1", "111");
+        idAliasMap.put("1", "11");
+        idAliasMap.put("2", "22");
+        nameAliasMap.put("name1", "name11");
+        nameAliasMap.put("name2", "name22");
     }
 
     @PostMapping("/queryUser")
     public UserVO queryUserCtrl(@RequestBody UserDTO userDTO) throws Exception {
         UserVO userVO = BeanExtUtils.bean2Bean(userDTO, UserVO.class, (targetFieldName, srcFieldVal) -> {
-            if ("alias".equals(targetFieldName)) {
-                return aliasMap.get(srcFieldVal.toString());
-            } else if ("id2".equals(targetFieldName)) {
-                return idMap.get(srcFieldVal.toString());
+            if ("nameAlias".equals(targetFieldName)) {
+                return nameAliasMap.get(srcFieldVal.toString());
+            } else if ("idAlias".equals(targetFieldName)) {
+                return idAliasMap.get(srcFieldVal.toString());
             } else {
                 return "";
             }
         });
         return userVO;
+    }
+
+    @PostMapping("/queryUser2")
+    public List<UserVO> queryUser2Ctrl(@RequestBody List<UserDTO> userDTOList) throws Exception {
+        List<UserVO> userVOList = BeanExtUtils.beans2Beans(userDTOList, UserVO.class, (targetFieldName, srcFieldVal) -> {
+            if ("nameAlias".equals(targetFieldName)) {
+                return nameAliasMap.get(srcFieldVal.toString());
+            } else if ("idAlias".equals(targetFieldName)) {
+                return idAliasMap.get(srcFieldVal.toString());
+            } else {
+                return "";
+            }
+        });
+        return userVOList;
     }
 
 }

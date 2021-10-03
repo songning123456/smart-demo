@@ -12,8 +12,8 @@ import lombok.EqualsAndHashCode;
 @Data
 public class UserVO extends User {
 
-    private String alias;
+    private String idAlias;
 
-    private String id2;
+    private String nameAlias;
 
 }

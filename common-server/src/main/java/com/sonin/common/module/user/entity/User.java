@@ -10,10 +10,10 @@ import lombok.Data;
 @Data
 public class User {
 
-    @BeanAnno(targetFieldName = "id2")
+    @BeanAnno(targetFieldName = "idAlias")
     private String id;
 
-    @BeanAnno(targetFieldName = "alias")
+    @BeanAnno(targetFieldName = "nameAlias")
     private String name;
 
 }
