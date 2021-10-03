@@ -10,6 +10,7 @@ import java.util.Map;
 /**
  * @author sonin
  * @date 2021/10/2 13:31
+ * bean类型转换
  */
 public class BeanUtils {
 
@@ -29,7 +30,7 @@ public class BeanUtils {
         Method[] srcMethods = src.getClass().getMethods();
         Method[] targetMethods = targetClass.getMethods();
         // 创建目标对象
-        T target = (T) targetClass.newInstance();
+        T target = targetClass.newInstance();
         // 创建 fieldName => Method 缓存
         Map<String, Method> srcMap = new HashMap<>(srcMethods.length >> 1);
         // 缓存src

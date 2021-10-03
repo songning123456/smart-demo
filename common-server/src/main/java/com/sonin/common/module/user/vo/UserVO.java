@@ -14,4 +14,6 @@ public class UserVO extends User {
 
     private String alias;
 
+    private String id2;
+
 }

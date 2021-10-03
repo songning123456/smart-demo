@@ -1,5 +1,6 @@
 package com.sonin.common.module.user.entity;
 
+import com.sonin.common.tool.annotation.BeanAnno;
 import lombok.Data;
 
 /**
@@ -9,8 +10,10 @@ import lombok.Data;
 @Data
 public class User {
 
+    @BeanAnno(targetFieldName = "id2")
     private String id;
 
+    @BeanAnno(targetFieldName = "alias")
     private String name;
 
 }
