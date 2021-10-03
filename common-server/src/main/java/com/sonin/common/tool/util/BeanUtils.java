@@ -1,7 +1,6 @@
 package com.sonin.common.tool.util;
 
-import com.alibaba.fastjson.JSON;
-
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,7 +135,7 @@ public class BeanUtils {
      * @param <T>
      * @return
      */
-    public static <T> T map2Bean(Map map, Class<T> targetClass) throws Exception {
+    public static <T> T map2Bean(Map<String, Object> map, Class<T> targetClass) throws Exception {
         // 判空
         if (map == null || targetClass == null) {
             return null;
@@ -145,7 +144,21 @@ public class BeanUtils {
         if (map.isEmpty()) {
             return targetClass.newInstance();
         }
-        return JSON.parseObject(JSON.toJSONString(map), targetClass);
+        // 构建对象
+        T target = targetClass.newInstance();
+        // 获取所有方法
+        Method[] methods = targetClass.getMethods();
+        for (Method method : methods) {
+            if (method.getName().startsWith("set")) {
+                // 截取属性名
+                String fieldName = method.getName();
+                fieldName = fieldName.toLowerCase().charAt(3) + fieldName.substring(4);
+                if (map.containsKey(fieldName)) {
+                    method.invoke(target, map.get(fieldName));
+                }
+            }
+        }
+        return target;
     }
 
     /**
@@ -156,7 +169,7 @@ public class BeanUtils {
      * @param <T>
      * @return
      */
-    public static <T> List<T> maps2Beans(List<Map> mapList, Class<T> targetClass) {
+    public static <T> List<T> maps2Beans(List<Map<String, Object>> mapList, Class<T> targetClass) throws Exception {
         // 判空
         if (mapList == null || targetClass == null) {
             return null;
@@ -166,7 +179,32 @@ public class BeanUtils {
             return new ArrayList<>();
         }
         List<T> targetList = new ArrayList<>();
-        mapList.forEach(map -> targetList.add(JSON.parseObject(JSON.toJSONString(map), targetClass)));
+        Map<String, Method> methodMap = new HashMap<>();
+        for (Map<String, Object> map : mapList) {
+            T target = targetClass.newInstance();
+            if (methodMap.isEmpty()) {
+                Method[] methods = targetClass.getMethods();
+                for (Method method : methods) {
+                    if (method.getName().startsWith("set")) {
+                        // 截取属性名
+                        String fieldName = method.getName();
+                        fieldName = fieldName.toLowerCase().charAt(3) + fieldName.substring(4);
+                        if (map.containsKey(fieldName)) {
+                            method.invoke(target, map.get(fieldName));
+                            methodMap.put(fieldName, method);
+                        }
+                    }
+                }
+            } else {
+                for (Map.Entry<String, Method> item : methodMap.entrySet()) {
+                    String fieldName = item.getKey();
+                    Method method = item.getValue();
+                    method.invoke(target, map.get(fieldName));
+                }
+            }
+        }
+        // 清理缓存
+        methodMap.clear();
         return targetList;
     }
 
@@ -177,12 +215,22 @@ public class BeanUtils {
      * @param <S>
      * @return
      */
-    public static <S> Map bean2Map(S src) {
+    public static <S> Map<String, Object> bean2Map(S src) throws Exception {
         // 判空
         if (src == null) {
-            return new HashMap();
+            return new HashMap<>();
         }
-        return JSON.parseObject(JSON.toJSONString(src), Map.class);
+        Map<String, Object> map = new HashMap<>();
+        Class srcClass = src.getClass();
+        while (srcClass != null && !"java.lang.Object".equals(srcClass.getName())) {
+            Field[] srcFields = srcClass.getDeclaredFields();
+            for (Field srcField : srcFields) {
+                srcField.setAccessible(true);
+                map.put(srcField.getName(), srcField.get(src));
+            }
+            srcClass = srcClass.getSuperclass();
+        }
+        return map;
     }
 
     /**
@@ -192,7 +240,7 @@ public class BeanUtils {
      * @param <S>
      * @return
      */
-    public static <S> List<Map> beans2Maps(List<S> srcList) {
+    public static <S> List<Map<String, Object>> beans2Maps(List<S> srcList) throws Exception {
         // 判空
         if (srcList == null) {
             return null;
@@ -201,8 +249,31 @@ public class BeanUtils {
         if (srcList.isEmpty()) {
             return new ArrayList<>();
         }
-        List<Map> mapList = new ArrayList<>();
-        srcList.forEach(src -> mapList.add(JSON.parseObject(JSON.toJSONString(src), Map.class)));
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        List<Field> fieldList = new ArrayList<>();
+        // 遍历存储
+        for (S src : srcList) {
+            Map<String, Object> map = new HashMap<>();
+            if (fieldList.isEmpty()) {
+                Class srcClass = src.getClass();
+                while (srcClass != null && !"java.lang.Object".equals(srcClass.getName())) {
+                    Field[] srcFields = srcClass.getDeclaredFields();
+                    for (Field srcField : srcFields) {
+                        srcField.setAccessible(true);
+                        map.put(srcField.getName(), srcField.get(src));
+                        fieldList.add(srcField);
+                    }
+                    srcClass = srcClass.getSuperclass();
+                }
+            } else {
+                for (Field srcField : fieldList) {
+                    map.put(srcField.getName(), srcField.get(src));
+                }
+            }
+            mapList.add(map);
+        }
+        // 清理缓存
+        fieldList.clear();
         return mapList;
     }
 
