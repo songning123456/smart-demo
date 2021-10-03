@@ -21,7 +21,7 @@ public class BeanUtils {
      * @param targetClass
      * @throws Exception
      */
-    public static <S, T> T bean2Bean(S src, Class<?> targetClass) throws Exception {
+    public static <S, T> T bean2Bean(S src, Class<T> targetClass) throws Exception {
         // 判空
         if (src == null || targetClass == null) {
             return null;
