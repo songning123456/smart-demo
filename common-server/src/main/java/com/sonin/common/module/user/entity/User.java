@@ -13,7 +13,7 @@ public class User {
     @BeanAnno(targetFieldName = "idAlias")
     private String id;
 
-    @BeanAnno(targetFieldName = "nameAlias")
+    @BeanAnno(targetFieldNames = {"x", "y", "nameAlias", "nameAliasList"}, targetFieldName = "nameAlias")
     private String name;
 
 }

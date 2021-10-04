@@ -13,4 +13,6 @@ public @interface BeanAnno {
 
     String targetFieldName() default "";
 
+    String[] targetFieldNames() default {};
+
 }
