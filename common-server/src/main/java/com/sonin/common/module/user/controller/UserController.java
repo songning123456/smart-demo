@@ -2,7 +2,7 @@ package com.sonin.common.module.user.controller;
 
 import com.sonin.common.module.user.dto.UserDTO;
 import com.sonin.common.module.user.vo.UserVO;
-import com.sonin.common.tool.util.BeanUtils;
+import com.sonin.common.tool.util.BeanExtUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +30,7 @@ public class UserController {
 
     @PostMapping("/queryUser")
     public UserVO queryUserCtrl(@RequestBody UserDTO userDTO) throws Exception {
-        UserVO userVO = BeanUtils.bean2Bean(userDTO, UserVO.class, (targetFieldName, srcFieldVal) -> {
+        UserVO userVO = BeanExtUtils.bean2Bean(userDTO, UserVO.class, (targetFieldName, srcFieldVal) -> {
             if ("nameAlias".equals(targetFieldName)) {
                 return nameAliasMap.get(srcFieldVal.toString());
             } else if ("idAlias".equals(targetFieldName)) {
@@ -50,7 +50,7 @@ public class UserController {
 
     @PostMapping("/queryUser2")
     public List<UserVO> queryUser2Ctrl(@RequestBody List<UserDTO> userDTOList) throws Exception {
-        List<UserVO> userVOList = BeanUtils.beans2Beans(userDTOList, UserVO.class, (targetFieldName, srcFieldVal) -> {
+        List<UserVO> userVOList = BeanExtUtils.beans2Beans(userDTOList, UserVO.class, (targetFieldName, srcFieldVal) -> {
             if ("nameAlias".equals(targetFieldName)) {
                 return nameAliasMap.get(srcFieldVal.toString());
             } else if ("idAlias".equals(targetFieldName)) {

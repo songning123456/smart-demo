@@ -15,7 +15,7 @@ import java.util.Map;
  * @date 2021/10/2 13:31
  * bean类型转换
  */
-public class BeanUtils {
+public class BeanExtUtils {
 
     /**
      * Bean => Bean
