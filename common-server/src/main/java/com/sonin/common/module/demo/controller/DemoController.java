@@ -80,6 +80,29 @@ public class DemoController {
     @DeleteMapping(value = "/delete")
     public Result<?> deleteCtrl(@RequestBody DemoDTO demoDTO) throws Exception {
         Object object = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
+        this.checkSqlIdFunc(object);
+        sqlService.delete(object);
+        return Result.ok("删除成功!");
+    }
+
+    @CustomExceptionAnno(description = "多表关联-编辑")
+    @PutMapping("/edit")
+    public Result<DemoVO> editCtrl(@RequestBody DemoDTO demoDTO) throws Exception {
+        Result<DemoVO> result = new Result<>();
+        Object object = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
+        this.checkSqlIdFunc(object);
+        sqlService.update(object);
+        DemoVO demoVO = BeanExtUtils.bean2Bean(object, DemoVO.class);
+        result.setResult(demoVO);
+        return result;
+    }
+
+    /**
+     * 校验sql的 primary key ?= foreign key
+     *
+     * @param object
+     */
+    private void checkSqlIdFunc(Object object) throws Exception {
         Class<?> clazz = object.getClass();
         Field[] fields = clazz.getDeclaredFields();
         Map<Class<?>, Object> class2ObjMap = new HashMap<>();
@@ -129,8 +152,6 @@ public class DemoController {
             field.setAccessible(false);
         }
         class2ObjMap.clear();
-        sqlService.delete(object);
-        return Result.ok("删除成功!");
     }
 
 }
