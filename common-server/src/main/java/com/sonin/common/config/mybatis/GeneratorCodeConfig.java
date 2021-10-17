@@ -75,4 +75,27 @@ public class GeneratorCodeConfig {
         autoGenerator.execute();
     }
 
+    /**
+     * 获取全局配置
+     *
+     * @return
+     */
+    private static GlobalConfig getGlobalConfig() {
+        GlobalConfig globalConfig = new GlobalConfig();
+        globalConfig.setActiveRecord(false) // 是否使用AR模式
+                .setAuthor("sonin") // 类作者名称
+                .setOutputDir("") // 代码文件生成路径
+                .setFileOverride(true) // 文件是否覆盖
+                // .setIdType(IdType.NONE) // 主键策略
+                .setServiceName("%sService") // 设置生成的service接口的名字的首字母是否为I
+                .setServiceImplName("%sServiceImpl") // 设置Service实现类名称格式
+                .setMapperName("%sMapper") // 设置Mapper类的名称格式
+                .setControllerName("%sController") // 设置Controller类的名称格式
+                .setEntityName("%sEntity") // 设置Entity类的名称格式
+                .setOpen(false) // 生成文件后是否打开文件
+                .setBaseResultMap(true)// 在mapper.xml文件中生成基本的resultMap
+                .setBaseColumnList(true);// 在mapper.xml文件中生成基本的SQL片段
+        return globalConfig;
+    }
+
 }
