@@ -12,7 +12,7 @@ import com.sonin.common.config.yaml.YamlPropUtils;
  */
 public class GeneratorCodeConfig {
 
-    public static void main(String[] args) throws Exception {
+    public void create() throws Exception {
         // 代码生成器
         AutoGenerator autoGenerator = new AutoGenerator();
         // 全局配置
@@ -35,7 +35,7 @@ public class GeneratorCodeConfig {
      *
      * @return
      */
-    private static GlobalConfig getGlobalConfig() throws Exception {
+    private GlobalConfig getGlobalConfig() throws Exception {
         Object author = YamlPropUtils.getInstance().getProperty("generate-code.global-config.author");
         if (author == null || "".equals(author)) {
             author = "sonin";
@@ -66,7 +66,7 @@ public class GeneratorCodeConfig {
      *
      * @return
      */
-    private static DataSourceConfig getDataSourceConfig() throws Exception {
+    private DataSourceConfig getDataSourceConfig() throws Exception {
         Object driverName = YamlPropUtils.getInstance().getProperty("generate-code.datasource.driver-name");
         if (driverName == null || "".equals(driverName)) {
             throw new Exception("generate-code.datasource.driver-name为必填项");
@@ -100,7 +100,7 @@ public class GeneratorCodeConfig {
      *
      * @return
      */
-    private static PackageConfig getPackageConfig() throws Exception {
+    private PackageConfig getPackageConfig() throws Exception {
         Object parent = YamlPropUtils.getInstance().getProperty("generate-code.package-config.parent");
         if (parent == null || "".equals(parent)) {
             throw new Exception("generate-code.package-config.parent为必填项");
@@ -121,7 +121,7 @@ public class GeneratorCodeConfig {
      *
      * @return
      */
-    private static StrategyConfig getStrategyConfig() throws Exception {
+    private StrategyConfig getStrategyConfig() throws Exception {
         Object include = YamlPropUtils.getInstance().getProperty("generate-code.strategy-config.include");
         if (include == null || "".equals(include)) {
             throw new Exception("generate-code.strategy-config.include为必填项");
@@ -137,6 +137,5 @@ public class GeneratorCodeConfig {
         strategyConfig.setControllerMappingHyphenStyle(true);
         return strategyConfig;
     }
-
 
 }
