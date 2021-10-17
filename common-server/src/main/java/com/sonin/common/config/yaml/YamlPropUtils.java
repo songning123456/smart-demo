@@ -64,7 +64,7 @@ public class YamlPropUtils {
      * @param args
      */
     public static void main(String[] args) {
-        Object property = YamlPropUtils.getInstance().getProperty("server.port");
+        Object property = YamlPropUtils.getInstance().getProperty("generate-code.port");
         System.out.println(property);
     }
 

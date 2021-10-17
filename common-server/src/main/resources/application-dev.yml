@@ -53,6 +53,7 @@ spring:
           url: jdbc:mysql://192.168.2.126:3306/smart-demo?characterEncoding=UTF-8&useUnicode=true&useSSL=false
           username: root
           password: 123456
+          driver-class-name: com.mysql.jdbc.Driver
   # Redis配置
   redis:
     host: 192.168.2.126
@@ -89,3 +90,35 @@ mybatis-plus:
 logging:
   level:
     root: info
+
+# 生成代码
+generate-code:
+  # 全局配置
+  global-config:
+    # 作者(选填)
+    author: sonin
+    # 输出入境(必填)
+    output-dir: E:\\Project\\sonin\\template
+  # 数据源配置
+  datasource:
+    # 数据库驱动名称(必填)
+    driver-name: com.mysql.jdbc.Driver
+    # 数据库url(必填)
+    url: jdbc:mysql://192.168.2.126:3306/smart-demo?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+    # 数据库username(必填)
+    username: root
+    # 数据库password(必填)
+    password: 123456
+    # 数据库表空间名称(选填)
+    schema-name:
+  # 包配置
+  package-config:
+    # 父包(必填)
+    parent: com.sonin.common
+  # 策略配置
+  strategy-config:
+    # 表名: ','分割(必填)
+    include: demo_a,demo_b,demo_c,demo_d
+
+
+
