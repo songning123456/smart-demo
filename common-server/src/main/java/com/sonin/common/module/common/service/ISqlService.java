@@ -6,9 +6,9 @@ package com.sonin.common.module.common.service;
  */
 public interface ISqlService {
 
-    Boolean save(Object object) throws IllegalAccessException;
+    Boolean save(Object object) throws Exception;
 
-    Boolean update(Object object) throws IllegalAccessException;
+    Boolean update(Object object) throws Exception;
 
-    Boolean delete(Object object) throws IllegalAccessException;
+    Boolean delete(Object object) throws Exception;
 }

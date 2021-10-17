@@ -22,7 +22,7 @@ public class SqlServiceImpl implements ISqlService {
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Boolean save(Object object) throws IllegalAccessException {
+    public Boolean save(Object object) throws Exception {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Throwable var5 = null;
         try {
@@ -30,9 +30,13 @@ public class SqlServiceImpl implements ISqlService {
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields) {
                 field.setAccessible(true);
-                Object subObj = field.get(object);
-                if (subObj == null || field.getAnnotation(SqlAnno.class) == null) {
+                if (field.getAnnotation(SqlAnno.class) == null) {
                     continue;
+                }
+                Object subObj = field.get(object);
+                if (subObj == null) {
+                    field.setAccessible(false);
+                    throw new Exception(field.getName() + " NULL POINT EXCEPTION");
                 }
                 String[] fieldNames = field.getType().getName().split("\\.");
                 StringBuilder stringBuilder = new StringBuilder();
@@ -66,14 +70,55 @@ public class SqlServiceImpl implements ISqlService {
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Boolean update(Object object) throws IllegalAccessException {
+    public Boolean update(Object object) throws Exception {
         return null;
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Boolean delete(Object object) throws IllegalAccessException {
-        return null;
+    public Boolean delete(Object object) throws Exception {
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        Throwable var5 = null;
+        try {
+            Class clazz = object.getClass();
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                if (field.getAnnotation(SqlAnno.class) == null) {
+                    continue;
+                }
+                Object subObj = field.get(object);
+                if (subObj == null) {
+                    field.setAccessible(false);
+                    throw new Exception(field.getName() + " NULL POINT EXCEPTION");
+                }
+                String[] fieldNames = field.getType().getName().split("\\.");
+                StringBuilder stringBuilder = new StringBuilder();
+                for (int i = 0; i < fieldNames.length - 2; i++) {
+                    stringBuilder.append(".").append(fieldNames[i]);
+                }
+                stringBuilder.append(".mapper.").append(fieldNames[fieldNames.length - 1]).append("Mapper.deleteById");
+                String sqlStatement = stringBuilder.toString().replaceFirst("\\.", "");
+                sqlSession.delete(sqlStatement, subObj);
+            }
+            sqlSession.flushStatements();
+            return true;
+        } catch (Throwable var16) {
+            var5 = var16;
+            throw var16;
+        } finally {
+            if (sqlSession != null) {
+                if (var5 != null) {
+                    try {
+                        sqlSession.close();
+                    } catch (Throwable var15) {
+                        var5.addSuppressed(var15);
+                    }
+                } else {
+                    sqlSession.close();
+                }
+            }
+        }
     }
 
 }
