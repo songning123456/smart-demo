@@ -2,7 +2,6 @@ package com.sonin.common.module.demo.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
-import com.sonin.common.tool.annotation.SqlAnno;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

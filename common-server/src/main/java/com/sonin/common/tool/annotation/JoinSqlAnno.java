@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.TYPE})
-public @interface SqlAnno {
+public @interface JoinSqlAnno {
 
     String primaryKey() default "id";
 

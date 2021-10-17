@@ -1,6 +1,6 @@
 package com.sonin.common.module.demo.entity;
 
-import com.sonin.common.tool.annotation.SqlAnno;
+import com.sonin.common.tool.annotation.JoinSqlAnno;
 import lombok.Data;
 
 /**
@@ -10,16 +10,16 @@ import lombok.Data;
 @Data
 public class Demo {
 
-    @SqlAnno(primaryKey = "id", targetClass = DemoB.class, foreignKey = "aId")
+    @JoinSqlAnno(primaryKey = "id", targetClass = DemoB.class, foreignKey = "aId")
     private DemoA demoA;
 
-    @SqlAnno(primaryKey = "id", targetClass = DemoC.class, foreignKey = "bId")
+    @JoinSqlAnno(primaryKey = "id", targetClass = DemoC.class, foreignKey = "bId")
     private DemoB demoB;
 
-    @SqlAnno(primaryKey = "id", targetClass = DemoD.class, foreignKey = "cId")
+    @JoinSqlAnno(primaryKey = "id", targetClass = DemoD.class, foreignKey = "cId")
     private DemoC demoC;
 
-    @SqlAnno
+    @JoinSqlAnno
     private DemoD demoD;
 
 }
