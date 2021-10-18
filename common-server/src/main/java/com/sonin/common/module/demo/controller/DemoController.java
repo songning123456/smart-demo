@@ -35,7 +35,8 @@ public class DemoController {
         Result<DemoVO> result = new Result<>();
         Object object = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
         JoinSqlUtils.setJoinSqlIdFunc(object);
-        sqlService.save(object);
+        // sqlService.save(object);
+        sqlService.save(((Demo)object).getDemoA(), ((Demo)object).getDemoB(), ((Demo)object).getDemoC(), ((Demo)object).getDemoD());
         DemoVO demoVO = BeanExtUtils.bean2Bean(object, DemoVO.class);
         result.setResult(demoVO);
         return result;
@@ -46,7 +47,8 @@ public class DemoController {
     public Result<?> deleteCtrl(@RequestBody DemoDTO demoDTO) throws Exception {
         Object object = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
         JoinSqlUtils.checkSqlIdFunc(object);
-        sqlService.delete(object);
+        // sqlService.delete(object);
+        sqlService.delete(((Demo)object).getDemoA(), ((Demo)object).getDemoB(), ((Demo)object).getDemoC(), ((Demo)object).getDemoD());
         return Result.ok("删除成功!");
     }
 
@@ -56,7 +58,8 @@ public class DemoController {
         Result<DemoVO> result = new Result<>();
         Object object = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
         JoinSqlUtils.checkSqlIdFunc(object);
-        sqlService.update(object);
+        // sqlService.update(object);
+        sqlService.update(((Demo)object).getDemoA(), ((Demo)object).getDemoB(), ((Demo)object).getDemoC(), ((Demo)object).getDemoD());
         DemoVO demoVO = BeanExtUtils.bean2Bean(object, DemoVO.class);
         result.setResult(demoVO);
         return result;

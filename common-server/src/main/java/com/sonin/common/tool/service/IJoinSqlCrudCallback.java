@@ -12,6 +12,6 @@ import org.springframework.lang.Nullable;
 public interface IJoinSqlCrudCallback {
 
     @Nullable
-    Integer doJoinSqlCrud(SqlSession sqlSession, String sqlStatement, Object object);
+    Integer doJoinSqlCrud(SqlSession sqlSession, String sqlStatement, Object object) throws Exception;
 
 }
