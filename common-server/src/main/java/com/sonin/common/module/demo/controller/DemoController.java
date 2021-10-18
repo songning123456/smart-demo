@@ -1,7 +1,7 @@
 package com.sonin.common.module.demo.controller;
 
 import com.sonin.common.aop.annotation.CustomExceptionAnno;
-import com.sonin.common.module.common.entity.Result;
+import com.sonin.common.constant.Result;
 import com.sonin.common.module.common.service.ISqlService;
 import com.sonin.common.module.demo.dto.DemoDTO;
 import com.sonin.common.module.demo.entity.Demo;

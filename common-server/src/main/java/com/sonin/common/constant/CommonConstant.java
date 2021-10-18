@@ -1,4 +1,4 @@
-package com.sonin.common.module.common.entity;
+package com.sonin.common.constant;
 
 /**
  * @author sonin

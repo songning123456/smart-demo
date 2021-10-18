@@ -1,7 +1,7 @@
 package com.sonin.common.aop.interceptor;
 
 import com.sonin.common.aop.annotation.CustomExceptionAnno;
-import com.sonin.common.module.common.entity.Result;
+import com.sonin.common.constant.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
