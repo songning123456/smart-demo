@@ -25,9 +25,7 @@ public class SqlServiceImpl implements ISqlService {
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public Boolean save(Object object) throws Exception {
-        return this.doJoinSqlOption(object, (sqlSession, sqlStatement, subObj) -> {
-            sqlSession.insert(sqlStatement + "insert", subObj);
-        });
+        return this.doJoinSqlOption(object, (sqlSession, sqlStatement, subObj) -> sqlSession.insert(sqlStatement + "insert", subObj));
     }
 
     @Override
@@ -36,16 +34,14 @@ public class SqlServiceImpl implements ISqlService {
         return this.doJoinSqlOption(object, (sqlSession, sqlStatement, subObj) -> {
             MapperMethod.ParamMap<Object> param = new MapperMethod.ParamMap<>();
             param.put("et", subObj);
-            sqlSession.update(sqlStatement + "updateById", param);
+            return sqlSession.update(sqlStatement + "updateById", param);
         });
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public Boolean delete(Object object) throws Exception {
-        return this.doJoinSqlOption(object, (sqlSession, sqlStatement, subObj) -> {
-            sqlSession.delete(sqlStatement + "deleteById", subObj);
-        });
+        return this.doJoinSqlOption(object, (sqlSession, sqlStatement, subObj) -> sqlSession.delete(sqlStatement + "deleteById", subObj));
     }
 
     private Boolean doJoinSqlOption(Object object, IJoinSqlCrudCallback iJoinSqlCrudCallback) throws Exception {
@@ -56,13 +52,10 @@ public class SqlServiceImpl implements ISqlService {
             Field[] fields = clazz.getDeclaredFields();
             for (Field field : fields) {
                 field.setAccessible(true);
-                if (field.getAnnotation(JoinSqlAnno.class) == null) {
-                    continue;
-                }
                 Object subObj = field.get(object);
                 field.setAccessible(false);
                 if (subObj == null) {
-                    throw new Exception(field.getName() + " NULL POINT EXCEPTION");
+                    continue;
                 }
                 String[] fieldNames = field.getType().getName().split("\\.");
                 StringBuilder stringBuilder = new StringBuilder();
