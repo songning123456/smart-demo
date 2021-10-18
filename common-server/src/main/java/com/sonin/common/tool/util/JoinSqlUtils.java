@@ -109,4 +109,29 @@ public class JoinSqlUtils {
         class2ObjMap.clear();
     }
 
+    /**
+     * 拼接inner join
+     *
+     * @param object
+     * @return
+     */
+    public static String joinSqlQuery(Object object) throws Exception {
+        Class<?> clazz = object.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        if (fields.length == 0) {
+            throw new Exception("请输入查询对象");
+        }
+        String sql = "";
+        String aliasObj = "";
+        for (int i = 0; i < fields.length; i++) {
+            Field field = fields[i];
+            if (i == 0) {
+                field.setAccessible(true);
+            } else {
+
+            }
+        }
+        return "";
+    }
+
 }

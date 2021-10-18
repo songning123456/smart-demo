@@ -1,6 +1,6 @@
 package com.sonin.common.module.common.service.impl;
 
-import com.sonin.common.module.common.service.ISqlService;
+import com.sonin.common.module.common.service.ICrudSqlService;
 import com.sonin.common.tool.service.IJoinSqlCrudCallback;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod;
@@ -18,7 +18,7 @@ import java.lang.reflect.Field;
  */
 @Service
 @Slf4j
-public class SqlServiceImpl implements ISqlService {
+public class CrudSqlServiceImpl implements ICrudSqlService {
 
     @Autowired
     private SqlSessionFactory sqlSessionFactory;

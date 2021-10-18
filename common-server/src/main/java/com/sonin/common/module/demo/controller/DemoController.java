@@ -2,7 +2,7 @@ package com.sonin.common.module.demo.controller;
 
 import com.sonin.common.aop.annotation.CustomExceptionAnno;
 import com.sonin.common.constant.Result;
-import com.sonin.common.module.common.service.ISqlService;
+import com.sonin.common.module.common.service.ICrudSqlService;
 import com.sonin.common.module.demo.dto.DemoDTO;
 import com.sonin.common.module.demo.entity.Demo;
 import com.sonin.common.module.demo.vo.DemoVO;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class DemoController {
 
     @Autowired
-    private ISqlService sqlService;
+    private ICrudSqlService iCrudSqlService;
 
     @CustomExceptionAnno(description = "多表关联-添加")
     @PostMapping(value = "/add")
@@ -35,8 +35,8 @@ public class DemoController {
         Result<DemoVO> result = new Result<>();
         Object object = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
         JoinSqlUtils.setJoinSqlIdFunc(object);
-        // sqlService.save(object);
-        sqlService.save(((Demo)object).getDemoA(), ((Demo)object).getDemoB(), ((Demo)object).getDemoC(), ((Demo)object).getDemoD());
+        // iCrudSqlService.save(object);
+        iCrudSqlService.save(((Demo)object).getDemoA(), ((Demo)object).getDemoB(), ((Demo)object).getDemoC(), ((Demo)object).getDemoD());
         DemoVO demoVO = BeanExtUtils.bean2Bean(object, DemoVO.class);
         result.setResult(demoVO);
         return result;
@@ -47,8 +47,8 @@ public class DemoController {
     public Result<?> deleteCtrl(@RequestBody DemoDTO demoDTO) throws Exception {
         Object object = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
         JoinSqlUtils.checkSqlIdFunc(object);
-        // sqlService.delete(object);
-        sqlService.delete(((Demo)object).getDemoA(), ((Demo)object).getDemoB(), ((Demo)object).getDemoC(), ((Demo)object).getDemoD());
+        // iCrudSqlService.delete(object);
+        iCrudSqlService.delete(((Demo)object).getDemoA(), ((Demo)object).getDemoB(), ((Demo)object).getDemoC(), ((Demo)object).getDemoD());
         return Result.ok("删除成功!");
     }
 
@@ -58,8 +58,8 @@ public class DemoController {
         Result<DemoVO> result = new Result<>();
         Object object = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
         JoinSqlUtils.checkSqlIdFunc(object);
-        // sqlService.update(object);
-        sqlService.update(((Demo)object).getDemoA(), ((Demo)object).getDemoB(), ((Demo)object).getDemoC(), ((Demo)object).getDemoD());
+        // iCrudSqlService.update(object);
+        iCrudSqlService.update(((Demo)object).getDemoA(), ((Demo)object).getDemoB(), ((Demo)object).getDemoC(), ((Demo)object).getDemoD());
         DemoVO demoVO = BeanExtUtils.bean2Bean(object, DemoVO.class);
         result.setResult(demoVO);
         return result;
