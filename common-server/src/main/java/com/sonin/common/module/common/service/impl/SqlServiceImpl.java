@@ -2,6 +2,7 @@ package com.sonin.common.module.common.service.impl;
 
 import com.sonin.common.module.common.service.ISqlService;
 import com.sonin.common.tool.service.IJoinSqlCrudCallback;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -16,6 +17,7 @@ import java.lang.reflect.Field;
  * @date 2021/10/17 15:11
  */
 @Service
+@Slf4j
 public class SqlServiceImpl implements ISqlService {
 
     @Autowired
@@ -78,14 +80,7 @@ public class SqlServiceImpl implements ISqlService {
                 if (subObj == null) {
                     continue;
                 }
-                String[] fieldNames = field.getType().getName().split("\\.");
-                StringBuilder stringBuilder = new StringBuilder();
-                for (int i = 0; i < fieldNames.length - 2; i++) {
-                    stringBuilder.append(".").append(fieldNames[i]);
-                }
-                stringBuilder.append(".mapper.").append(fieldNames[fieldNames.length - 1]).append("Mapper.");
-                String sqlStatement = stringBuilder.toString().replaceFirst("\\.", "");
-                iJoinSqlCrudCallback.doJoinSqlCrud(sqlSession, sqlStatement, subObj);
+                this.doHandle(iJoinSqlCrudCallback, sqlSession, subObj);
             }
             sqlSession.flushStatements();
             return true;
@@ -115,14 +110,7 @@ public class SqlServiceImpl implements ISqlService {
                 if (subObj == null) {
                     continue;
                 }
-                String[] fieldNames = subObj.getClass().getName().split("\\.");
-                StringBuilder stringBuilder = new StringBuilder();
-                for (int i = 0; i < fieldNames.length - 2; i++) {
-                    stringBuilder.append(".").append(fieldNames[i]);
-                }
-                stringBuilder.append(".mapper.").append(fieldNames[fieldNames.length - 1]).append("Mapper.");
-                String sqlStatement = stringBuilder.toString().replaceFirst("\\.", "");
-                iJoinSqlCrudCallback.doJoinSqlCrud(sqlSession, sqlStatement, subObj);
+                this.doHandle(iJoinSqlCrudCallback, sqlSession, subObj);
             }
             sqlSession.flushStatements();
             return true;
@@ -142,6 +130,18 @@ public class SqlServiceImpl implements ISqlService {
                 }
             }
         }
+    }
+
+    private void doHandle(IJoinSqlCrudCallback iJoinSqlCrudCallback, SqlSession sqlSession, Object subObj) throws Exception {
+        String[] fieldNames = subObj.getClass().getName().split("\\.");
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < fieldNames.length - 2; i++) {
+            stringBuilder.append(".").append(fieldNames[i]);
+        }
+        stringBuilder.append(".mapper.").append(fieldNames[fieldNames.length - 1]).append("Mapper.");
+        String sqlStatement = stringBuilder.toString().replaceFirst("\\.", "");
+        Integer val0 = iJoinSqlCrudCallback.doJoinSqlCrud(sqlSession, sqlStatement, subObj);
+        log.info("sql: {}crud, affectRows: {}", sqlStatement, val0);
     }
 
 }
