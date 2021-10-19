@@ -1,5 +1,6 @@
 package com.sonin.common.module.demo.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sonin.common.aop.annotation.CustomExceptionAnno;
 import com.sonin.common.constant.Result;
 import com.sonin.common.module.common.service.ICrudSqlService;
@@ -62,6 +63,15 @@ public class DemoController {
         iCrudSqlService.update(((Demo) object).getDemoA(), ((Demo) object).getDemoB(), ((Demo) object).getDemoC(), ((Demo) object).getDemoD());
         DemoVO demoVO = BeanExtUtils.bean2Bean(object, DemoVO.class);
         result.setResult(demoVO);
+        return result;
+    }
+
+    @CustomExceptionAnno(description = "多表关联-分页查询")
+    @PostMapping("/page")
+    public Result<Page<DemoVO>> pageCtrl(@RequestBody DemoDTO demoDTO) throws Exception {
+        Result<Page<DemoVO>> result = new Result<>();
+        Demo demo = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
+        String sql = JoinSqlUtils.joinSqlQuery(demo);
         return result;
     }
 
