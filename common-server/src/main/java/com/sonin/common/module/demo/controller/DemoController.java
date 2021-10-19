@@ -34,9 +34,10 @@ public class DemoController {
     public Result<DemoVO> addCtrl(@RequestBody DemoDTO demoDTO) throws Exception {
         Result<DemoVO> result = new Result<>();
         Object object = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
+        JoinSqlUtils.sortFunc(object);
         JoinSqlUtils.setJoinSqlIdFunc(object);
         // iCrudSqlService.save(object);
-        iCrudSqlService.save(((Demo)object).getDemoA(), ((Demo)object).getDemoB(), ((Demo)object).getDemoC(), ((Demo)object).getDemoD());
+        // iCrudSqlService.save(((Demo)object).getDemoA(), ((Demo)object).getDemoB(), ((Demo)object).getDemoC(), ((Demo)object).getDemoD());
         DemoVO demoVO = BeanExtUtils.bean2Bean(object, DemoVO.class);
         result.setResult(demoVO);
         return result;
@@ -48,7 +49,7 @@ public class DemoController {
         Object object = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
         JoinSqlUtils.checkSqlIdFunc(object);
         // iCrudSqlService.delete(object);
-        iCrudSqlService.delete(((Demo)object).getDemoA(), ((Demo)object).getDemoB(), ((Demo)object).getDemoC(), ((Demo)object).getDemoD());
+        iCrudSqlService.delete(((Demo) object).getDemoA(), ((Demo) object).getDemoB(), ((Demo) object).getDemoC(), ((Demo) object).getDemoD());
         return Result.ok("删除成功!");
     }
 
@@ -59,7 +60,7 @@ public class DemoController {
         Object object = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
         JoinSqlUtils.checkSqlIdFunc(object);
         // iCrudSqlService.update(object);
-        iCrudSqlService.update(((Demo)object).getDemoA(), ((Demo)object).getDemoB(), ((Demo)object).getDemoC(), ((Demo)object).getDemoD());
+        iCrudSqlService.update(((Demo) object).getDemoA(), ((Demo) object).getDemoB(), ((Demo) object).getDemoC(), ((Demo) object).getDemoD());
         DemoVO demoVO = BeanExtUtils.bean2Bean(object, DemoVO.class);
         result.setResult(demoVO);
         return result;

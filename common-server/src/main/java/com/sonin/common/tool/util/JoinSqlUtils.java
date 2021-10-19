@@ -108,37 +108,51 @@ public class JoinSqlUtils {
      * @return
      */
     public static String joinSqlQuery(Object object) throws Exception {
-        Class<?> clazz = object.getClass();
-        Field[] fields = clazz.getDeclaredFields();
+        return "";
+    }
+
+    /**
+     * 排序
+     *
+     * @param object
+     * @return
+     * @throws Exception
+     */
+    public static List<Object> sortFunc(Object object) throws Exception {
+        Field[] fields = object.getClass().getDeclaredFields();
         if (fields.length == 0) {
-            throw new Exception("请输入查询对象");
+            throw new Exception("PLEASE INPUT OBJECT");
         }
-        List<Object> subObjList = new LinkedList<>();
+        List<Class> classList = new LinkedList<>();
+        Map<Class, Object> subObjMap = new HashMap<>(2);
         for (Field field : fields) {
             JoinSqlAnno joinSqlAnno = field.getAnnotation(JoinSqlAnno.class);
             if (joinSqlAnno == null) {
                 continue;
             }
+            if (classList.contains(field.getType())) {
+                throw new Exception("DUPLICATE SUB OBJECT");
+            }
+            int index = classList.indexOf(joinSqlAnno.targetClass());
+            if (index != -1) {
+                classList.add(index, field.getType());
+            } else {
+                classList.add(field.getType());
+            }
             field.setAccessible(true);
-            Object srcObject = field.get(object);
+            if (field.get(object) == null) {
+                field.set(object, field.getType().newInstance());
+            }
+            Object subObj = field.get(object);
             field.setAccessible(false);
-            if (srcObject == null) {
-                continue;
-            }
-            if (!subObjList.contains(srcObject)) {
-                subObjList.add(srcObject);
-            }
-            if (joinSqlAnno.targetClass() != Object.class) {
-                Field targetField = clazz.getDeclaredField(joinSqlAnno.targetClass().getSimpleName());
-                targetField.setAccessible(true);
-                Object targetObject = targetField.get(object);
-                targetField.setAccessible(false);
-                if (!subObjList.contains(targetObject)) {
-                    subObjList.add(targetObject);
-                }
-            }
+            subObjMap.put(field.getType(), subObj);
         }
-        return "";
+        List<Object> subObjList = new ArrayList<>();
+        for (Class item : classList) {
+            subObjList.add(subObjMap.get(item));
+        }
+        classList.clear();
+        subObjMap.clear();
+        return subObjList;
     }
-
 }
