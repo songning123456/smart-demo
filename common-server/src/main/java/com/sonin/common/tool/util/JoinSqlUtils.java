@@ -18,8 +18,7 @@ public class JoinSqlUtils {
      * @throws Exception
      */
     public static void setJoinSqlIdFunc(Object object) throws Exception {
-        Class<?> clazz = object.getClass();
-        Field[] fields = clazz.getDeclaredFields();
+        Field[] fields = object.getClass().getDeclaredFields();
         Map<Class<?>, Object> class2ObjMap = new HashMap<>();
         for (int i = fields.length - 1; i >= 0; i--) {
             Field field = fields[i];
@@ -57,8 +56,7 @@ public class JoinSqlUtils {
      * @param object
      */
     public static void checkSqlIdFunc(Object object) throws Exception {
-        Class<?> clazz = object.getClass();
-        Field[] fields = clazz.getDeclaredFields();
+        Field[] fields = object.getClass().getDeclaredFields();
         Map<Class<?>, Object> class2ObjMap = new HashMap<>();
         for (int i = fields.length - 1; i >= 0; i--) {
             Field field = fields[i];
@@ -109,50 +107,5 @@ public class JoinSqlUtils {
      */
     public static String joinSqlQuery(Object object) throws Exception {
         return "";
-    }
-
-    /**
-     * 排序
-     *
-     * @param object
-     * @return
-     * @throws Exception
-     */
-    public static List<Object> sortFunc(Object object) throws Exception {
-        Field[] fields = object.getClass().getDeclaredFields();
-        if (fields.length == 0) {
-            throw new Exception("PLEASE INPUT OBJECT");
-        }
-        List<Class> classList = new LinkedList<>();
-        Map<Class, Object> subObjMap = new HashMap<>(2);
-        for (Field field : fields) {
-            JoinSqlAnno joinSqlAnno = field.getAnnotation(JoinSqlAnno.class);
-            if (joinSqlAnno == null) {
-                continue;
-            }
-            if (classList.contains(field.getType())) {
-                throw new Exception("DUPLICATE SUB OBJECT");
-            }
-            int index = classList.indexOf(joinSqlAnno.targetClass());
-            if (index != -1) {
-                classList.add(index, field.getType());
-            } else {
-                classList.add(field.getType());
-            }
-            field.setAccessible(true);
-            if (field.get(object) == null) {
-                field.set(object, field.getType().newInstance());
-            }
-            Object subObj = field.get(object);
-            field.setAccessible(false);
-            subObjMap.put(field.getType(), subObj);
-        }
-        List<Object> subObjList = new ArrayList<>();
-        for (Class item : classList) {
-            subObjList.add(subObjMap.get(item));
-        }
-        classList.clear();
-        subObjMap.clear();
-        return subObjList;
     }
 }

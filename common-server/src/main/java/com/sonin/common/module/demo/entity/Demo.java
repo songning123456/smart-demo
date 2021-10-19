@@ -10,17 +10,19 @@ import lombok.Data;
 @Data
 public class Demo {
 
+    @JoinSqlAnno(primaryKey = "id", targetClass = DemoB.class, foreignKey = "aId")
+    private DemoA demoA;
+
     @JoinSqlAnno(primaryKey = "id", targetClass = DemoC.class, foreignKey = "bId")
     private DemoB demoB;
+
+    @JoinSqlAnno(primaryKey = "id", targetClass = DemoD.class, foreignKey = "cId")
+    private DemoC demoC;
 
     @JoinSqlAnno
     private DemoD demoD;
 
-    @JoinSqlAnno(primaryKey = "id", targetClass = DemoB.class, foreignKey = "aId")
-    private DemoA demoA;
 
-    @JoinSqlAnno(primaryKey = "id", targetClass = DemoD.class, foreignKey = "cId")
-    private DemoC demoC;
 
 
 
