@@ -21,7 +21,7 @@ public class JoinSqlUtils {
      * @param object
      * @throws Exception
      */
-    public static void setJoinSqlIdFunc(Object object) throws Exception {
+    public static <T> void setJoinSqlIdFunc(T object) throws Exception {
         Field[] fields = object.getClass().getDeclaredFields();
         Map<Class<?>, Object> class2ObjMap = new HashMap<>();
         for (int i = fields.length - 1; i >= 0; i--) {
@@ -34,22 +34,22 @@ public class JoinSqlUtils {
             if (field.get(object) == null) {
                 field.set(object, field.getType().newInstance());
             }
-            Object srcObject = field.get(object);
+            Object srcObj = field.get(object);
             field.setAccessible(false);
             // 设置唯一主键
             String uuid = UniqIdUtils.getInstance().getUniqID();
-            Field srcField = srcObject.getClass().getDeclaredField(joinSqlAnno.primaryKey());
+            Field srcField = srcObj.getClass().getDeclaredField(joinSqlAnno.primaryKey());
             srcField.setAccessible(true);
-            srcField.set(srcObject, uuid);
+            srcField.set(srcObj, uuid);
             srcField.setAccessible(false);
-            Object targetObject = class2ObjMap.get(joinSqlAnno.targetClass());
-            if (targetObject != null) {
-                Field targetField = targetObject.getClass().getDeclaredField(joinSqlAnno.foreignKey());
+            Object targetObj = class2ObjMap.get(joinSqlAnno.targetClass());
+            if (targetObj != null) {
+                Field targetField = targetObj.getClass().getDeclaredField(joinSqlAnno.foreignKey());
                 targetField.setAccessible(true);
-                targetField.set(targetObject, uuid);
+                targetField.set(targetObj, uuid);
                 targetField.setAccessible(false);
             }
-            class2ObjMap.put(field.getType(), srcObject);
+            class2ObjMap.put(field.getType(), srcObj);
         }
         class2ObjMap.clear();
     }
@@ -59,7 +59,7 @@ public class JoinSqlUtils {
      *
      * @param object
      */
-    public static void checkSqlIdFunc(Object object) throws Exception {
+    public static <T> void checkSqlIdFunc(T object) throws Exception {
         Field[] fields = object.getClass().getDeclaredFields();
         Map<Class<?>, Object> class2ObjMap = new HashMap<>();
         for (int i = fields.length - 1; i >= 0; i--) {
@@ -69,25 +69,25 @@ public class JoinSqlUtils {
                 continue;
             }
             field.setAccessible(true);
-            Object srcObject = field.get(object);
+            Object srcObj = field.get(object);
             field.setAccessible(false);
-            if (srcObject == null) {
+            if (srcObj == null) {
                 class2ObjMap.clear();
                 throw new Exception(field.getName() + " NULL POINT EXCEPTION");
             }
-            Field srcField = srcObject.getClass().getDeclaredField(joinSqlAnno.primaryKey());
+            Field srcField = srcObj.getClass().getDeclaredField(joinSqlAnno.primaryKey());
             srcField.setAccessible(true);
-            Object srcFieldVal = srcField.get(srcObject);
+            Object srcFieldVal = srcField.get(srcObj);
             srcField.setAccessible(false);
             if (srcFieldVal == null) {
                 class2ObjMap.clear();
                 throw new Exception(field.getName() + " Primary Key NULL POINT EXCEPTION");
             }
-            Object targetObject = class2ObjMap.get(joinSqlAnno.targetClass());
-            if (targetObject != null) {
-                Field targetField = targetObject.getClass().getDeclaredField(joinSqlAnno.foreignKey());
+            Object targetObj = class2ObjMap.get(joinSqlAnno.targetClass());
+            if (targetObj != null) {
+                Field targetField = targetObj.getClass().getDeclaredField(joinSqlAnno.foreignKey());
                 targetField.setAccessible(true);
-                Object targetFieldVal = targetField.get(targetObject);
+                Object targetFieldVal = targetField.get(targetObj);
                 targetField.setAccessible(false);
                 if (targetFieldVal == null) {
                     class2ObjMap.clear();
@@ -95,10 +95,10 @@ public class JoinSqlUtils {
                 }
                 if (!srcFieldVal.equals(targetFieldVal)) {
                     class2ObjMap.clear();
-                    throw new Exception(srcObject.getClass().getSimpleName() + " Primary Key != " + targetObject.getClass().getSimpleName() + " Foreign Key");
+                    throw new Exception(srcObj.getClass().getSimpleName() + " Primary Key != " + targetObj.getClass().getSimpleName() + " Foreign Key");
                 }
             }
-            class2ObjMap.put(field.getType(), srcObject);
+            class2ObjMap.put(field.getType(), srcObj);
         }
         class2ObjMap.clear();
     }
@@ -109,7 +109,7 @@ public class JoinSqlUtils {
      * @param object
      * @return
      */
-    public static String joinSqlQuery(Object object) throws Exception {
+    public static <T> String joinSqlQuery(T object) throws Exception {
         Field[] fields = object.getClass().getDeclaredFields();
         if (fields.length == 0) {
             throw new Exception("Object NULL POINT EXCEPTION");
@@ -151,13 +151,13 @@ public class JoinSqlUtils {
     }
 
     /**
-     * 根据条件查询
+     * 根据条件查询inner join
      *
      * @param object
      * @return
      * @throws Exception
      */
-    public static String joinSqlTermQuery(Object object) throws Exception {
+    public static <T> String joinSqlTermQuery(T object) throws Exception {
         String joinSql = joinSqlQuery(object);
         Field[] fields = object.getClass().getDeclaredFields();
         StringBuilder termSqlStrBuilder = new StringBuilder();
@@ -196,7 +196,7 @@ public class JoinSqlUtils {
      * @param subObj
      * @return
      */
-    private static String getColumns(Object subObj) {
+    private static <M> String getColumns(M subObj) {
         String className = subObj.getClass().getSimpleName();
         Field[] fields = subObj.getClass().getDeclaredFields();
         StringBuilder stringBuilder = new StringBuilder();
@@ -215,6 +215,45 @@ public class JoinSqlUtils {
             stringBuilder.append(", ").append(className).append(".").append(columnName).append(" as ").append(className).append("_").append(fieldName);
         }
         return stringBuilder.toString().replaceFirst(", ", "");
+    }
+
+    /**
+     * 类型转换 maps => beans
+     *
+     * @param mapList
+     * @param clazz
+     * @param <T>
+     * @return
+     * @throws Exception
+     */
+    public static <T> List<T> maps2beans(List<Map<String, Object>> mapList, Class<T> clazz) throws Exception {
+        List<T> list = new ArrayList<>();
+        Map<String, Object> class2ObjMap = new LinkedHashMap<>();
+        for (Map<String, Object> map : mapList) {
+            T object = clazz.newInstance();
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                Object subObj = field.getType().newInstance();
+                field.setAccessible(true);
+                field.set(object, subObj);
+                field.setAccessible(false);
+                class2ObjMap.put(field.getType().getSimpleName(), subObj);
+            }
+            for (Map.Entry<String, Object> item : map.entrySet()) {
+                String key = item.getKey();
+                Object val = item.getValue();
+                String subClassName = key.split("_")[0];
+                String subFieldName = key.split("_")[1];
+                Object subObj = class2ObjMap.get(subClassName);
+                Field subField = subObj.getClass().getDeclaredField(subFieldName);
+                subField.setAccessible(true);
+                subField.set(subObj, val);
+                subField.setAccessible(false);
+            }
+            list.add(object);
+        }
+        class2ObjMap.clear();
+        return list;
     }
 
 }

@@ -3,6 +3,7 @@ package com.sonin.common.module.demo.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sonin.common.aop.annotation.CustomExceptionAnno;
 import com.sonin.common.constant.Result;
+import com.sonin.common.module.common.service.ICommonSqlService;
 import com.sonin.common.module.common.service.ICrudSqlService;
 import com.sonin.common.module.demo.dto.DemoDTO;
 import com.sonin.common.module.demo.entity.Demo;
@@ -12,6 +13,9 @@ import com.sonin.common.tool.util.JoinSqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -29,6 +33,8 @@ public class DemoController {
 
     @Autowired
     private ICrudSqlService iCrudSqlService;
+    @Autowired
+    private ICommonSqlService iCommonSqlService;
 
     @CustomExceptionAnno(description = "多表关联-添加")
     @PostMapping(value = "/add")
@@ -71,8 +77,15 @@ public class DemoController {
     public Result<Page<DemoVO>> pageCtrl(@RequestBody DemoDTO demoDTO) throws Exception {
         Result<Page<DemoVO>> result = new Result<>();
         Demo demo = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
+        // 不带拼接条件
         String sql = JoinSqlUtils.joinSqlQuery(demo);
+        // 带拼接条件
         String sql2 = JoinSqlUtils.joinSqlTermQuery(demo);
+        Page page = new Page(1, 10);
+        Page<Map<String, Object>> pageMapList = iCommonSqlService.queryForPage(page, sql);
+        List<DemoVO> demoVOList = JoinSqlUtils.maps2beans(pageMapList.getRecords(), DemoVO.class);
+        page.setRecords(demoVOList);
+        result.setResult(page);
         return result;
     }
 
