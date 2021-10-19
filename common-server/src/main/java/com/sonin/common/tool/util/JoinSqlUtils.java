@@ -226,7 +226,7 @@ public class JoinSqlUtils {
      * @return
      * @throws Exception
      */
-    public static <T> List<T> maps2beans(List<Map<String, Object>> mapList, Class<T> clazz) throws Exception {
+    public static <T> List<T> maps2Beans(List<Map<String, Object>> mapList, Class<T> clazz) throws Exception {
         List<T> list = new ArrayList<>();
         Map<String, Object> class2ObjMap = new LinkedHashMap<>();
         for (Map<String, Object> map : mapList) {

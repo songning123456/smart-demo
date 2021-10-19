@@ -83,7 +83,7 @@ public class DemoController {
         String sql2 = JoinSqlUtils.joinSqlTermQuery(demo);
         Page page = new Page(1, 10);
         Page<Map<String, Object>> pageMapList = iCommonSqlService.queryForPage(page, sql);
-        List<DemoVO> demoVOList = JoinSqlUtils.maps2beans(pageMapList.getRecords(), DemoVO.class);
+        List<DemoVO> demoVOList = JoinSqlUtils.maps2Beans(pageMapList.getRecords(), DemoVO.class);
         page.setRecords(demoVOList);
         result.setResult(page);
         return result;
