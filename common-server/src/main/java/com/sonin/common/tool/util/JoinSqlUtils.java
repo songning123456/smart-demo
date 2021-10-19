@@ -2,6 +2,8 @@ package com.sonin.common.tool.util;
 
 import com.google.common.base.CaseFormat;
 import com.sonin.common.tool.annotation.JoinSqlAnno;
+import com.sonin.common.tool.annotation.JoinSqlQueryAnno;
+import com.sonin.common.tool.enums.JoinSqlQueryEnum;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -116,7 +118,7 @@ public class JoinSqlUtils {
         Map<Class, String> target2PrimaryKeyMap = new HashMap<>(2);
         String sql = "";
         StringBuilder aliasStrBuilder = new StringBuilder();
-        String alias = "";
+        String alias;
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
             JoinSqlAnno joinSqlAnno = field.getAnnotation(JoinSqlAnno.class);
@@ -149,6 +151,44 @@ public class JoinSqlUtils {
     }
 
     /**
+     * 根据条件查询
+     *
+     * @param object
+     * @return
+     * @throws Exception
+     */
+    public static String joinSqlTermQuery(Object object) throws Exception {
+        String joinSql = joinSqlQuery(object);
+        Field[] fields = object.getClass().getDeclaredFields();
+        StringBuilder termSqlStrBuilder = new StringBuilder();
+        for (Field field : fields) {
+            JoinSqlAnno joinSqlAnno = field.getAnnotation(JoinSqlAnno.class);
+            if (joinSqlAnno == null) {
+                continue;
+            }
+            field.setAccessible(true);
+            Object subObj = field.get(object);
+            field.setAccessible(false);
+            Field[] subFields = field.getType().getDeclaredFields();
+            for (Field subField : subFields) {
+                subField.setAccessible(true);
+                Object subFieldVal = subField.get(subObj);
+                subField.setAccessible(false);
+                JoinSqlQueryAnno joinSqlQueryAnno = subField.getAnnotation(JoinSqlQueryAnno.class);
+                if (joinSqlQueryAnno == null || !joinSqlQueryAnno.isUsed() || subFieldVal == null || "".equals(subFieldVal)) {
+                    continue;
+                }
+                JoinSqlQueryEnum joinSqlQueryEnum = joinSqlQueryAnno.joinSqlQueryEnum();
+                String sqlTemplate = joinSqlQueryEnum.getSql();
+                sqlTemplate = sqlTemplate.replace("${var0}", subObj.getClass().getSimpleName() + "_" + subField.getName());
+                sqlTemplate = sqlTemplate.replace("${val0}", subFieldVal + "");
+                termSqlStrBuilder.append(sqlTemplate);
+            }
+        }
+        return joinSql + termSqlStrBuilder.toString();
+    }
+
+    /**
      * 获取
      * select DemoA.id as DemoA_id, DemoA.a_name as DemoA_AName from demo_a as DemoA
      * e.g: DemoA.id as DemoA_id, DemoA.a_name as DemoA_aName
@@ -161,6 +201,11 @@ public class JoinSqlUtils {
         Field[] fields = subObj.getClass().getDeclaredFields();
         StringBuilder stringBuilder = new StringBuilder();
         for (Field field : fields) {
+            JoinSqlQueryAnno joinSqlQueryAnno = field.getAnnotation(JoinSqlQueryAnno.class);
+            // 注解存在 且 isUsed=false 则过滤
+            if (joinSqlQueryAnno != null && !joinSqlQueryAnno.isUsed()) {
+                continue;
+            }
             // 匹配是否为静态常量,剔除实体类中serialVersionUID字段
             if (Modifier.isStatic(field.getModifiers())) {
                 continue;

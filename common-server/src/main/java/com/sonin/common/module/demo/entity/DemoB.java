@@ -2,6 +2,8 @@ package com.sonin.common.module.demo.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.sonin.common.tool.annotation.JoinSqlQueryAnno;
+import com.sonin.common.tool.enums.JoinSqlQueryEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -22,11 +24,13 @@ public class DemoB extends Model {
 
     private static final long serialVersionUID = 1L;
 
+    @JoinSqlQueryAnno(joinSqlQueryEnum = JoinSqlQueryEnum.LIKE)
     private String id;
 
     /**
      * b_名称
      */
+    @JoinSqlQueryAnno(isUsed = false)
     private String bName;
 
     /**

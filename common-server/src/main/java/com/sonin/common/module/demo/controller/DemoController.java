@@ -72,6 +72,7 @@ public class DemoController {
         Result<Page<DemoVO>> result = new Result<>();
         Demo demo = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
         String sql = JoinSqlUtils.joinSqlQuery(demo);
+        String sql2 = JoinSqlUtils.joinSqlTermQuery(demo);
         return result;
     }
 
