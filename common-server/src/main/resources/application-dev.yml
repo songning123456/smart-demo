@@ -114,7 +114,7 @@ generate-code:
   # 包配置
   package-config:
     # 父包(必填)
-    parent: com.sonin.common
+    parent: com.sonin.common.module.demo
   # 策略配置
   strategy-config:
     # 表名: ','分割(必填)

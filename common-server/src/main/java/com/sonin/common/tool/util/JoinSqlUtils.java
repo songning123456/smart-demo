@@ -12,6 +12,7 @@ import java.util.*;
 /**
  * @author sonin
  * @date 2021/10/17 19:38
+ * T表示多层对象，M表示一层对象
  */
 public class JoinSqlUtils {
 
@@ -104,15 +105,15 @@ public class JoinSqlUtils {
     }
 
     /**
-     * 拼接inner join
+     * Object种包含多个subObj，1对1拼接inner join
      *
      * @param object
      * @return
      */
-    public static <T> String joinSqlQuery(T object) throws Exception {
+    public static <T> String multiJoinSqlQuery(T object) throws Exception {
         Field[] fields = object.getClass().getDeclaredFields();
         if (fields.length == 0) {
-            throw new Exception("Object NULL POINT EXCEPTION");
+            throw new Exception(object.getClass().getSimpleName() + " NULL POINT EXCEPTION");
         }
         Map<Class, String> target2ForeignKeyMap = new HashMap<>(2);
         Map<Class, String> target2PrimaryKeyMap = new HashMap<>(2);
@@ -151,14 +152,14 @@ public class JoinSqlUtils {
     }
 
     /**
-     * 根据条件查询inner join
+     * Object种包含多个subObj，1对1拼接inner join 并查询
      *
      * @param object
      * @return
      * @throws Exception
      */
-    public static <T> String joinSqlTermQuery(T object) throws Exception {
-        String joinSql = joinSqlQuery(object);
+    public static <T> String multiJoinSqlTermQuery(T object) throws Exception {
+        String joinSql = multiJoinSqlQuery(object);
         Field[] fields = object.getClass().getDeclaredFields();
         StringBuilder termSqlStrBuilder = new StringBuilder();
         for (Field field : fields) {
@@ -186,6 +187,41 @@ public class JoinSqlUtils {
             }
         }
         return joinSql + termSqlStrBuilder.toString();
+    }
+
+    /**
+     * 多个Object relation: inner join
+     *
+     * @param object
+     * @param <M>
+     * @return
+     * @throws Exception
+     */
+    public static <M> String singleJoinSqlQuery(M object) throws Exception {
+        Field[] fields = object.getClass().getDeclaredFields();
+        if (fields.length == 0) {
+            throw new Exception(object.getClass().getSimpleName() + " NULL POINT EXCEPTION");
+        }
+        String className = object.getClass().getSimpleName();
+        String tableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, className);
+        String sql = "select " + getColumns(object.getClass()) + " from " + tableName + " as " + className;
+        StringBuilder aliasStrBuilder = new StringBuilder();
+        aliasStrBuilder.append("_").append(className);
+        String alias;
+        for (Field field : fields) {
+            JoinSqlAnno joinSqlAnno = field.getAnnotation(JoinSqlAnno.class);
+            if (joinSqlAnno == null) {
+                continue;
+            }
+            className = joinSqlAnno.targetClass().getSimpleName();
+            tableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, joinSqlAnno.targetClass().getSimpleName());
+            alias = aliasStrBuilder.toString().replaceFirst("_", "");
+            sql = "select " + alias + ".*, " + getColumns(joinSqlAnno.targetClass()) + " from " + tableName + " as " + className + " inner join (" + sql + ") as " + alias + " on " + className + "." + CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, joinSqlAnno.foreignKey()) + " = " + alias + "." + object.getClass().getSimpleName() + "_" + joinSqlAnno.primaryKey();
+            aliasStrBuilder.append("_").append(className);
+        }
+        alias = aliasStrBuilder.toString().replaceFirst("_", "");
+        sql = "select " + alias + ".* from (" + sql + ") as " + alias + " where 1 = 1";
+        return sql;
     }
 
     /**

@@ -6,7 +6,9 @@ import com.sonin.common.constant.Result;
 import com.sonin.common.module.common.service.ICommonSqlService;
 import com.sonin.common.module.common.service.ICrudSqlService;
 import com.sonin.common.module.demo.dto.DemoDTO;
+import com.sonin.common.module.demo.dto.DemoRelationDTO;
 import com.sonin.common.module.demo.entity.Demo;
+import com.sonin.common.module.demo.entity.DemoRelation;
 import com.sonin.common.module.demo.vo.DemoVO;
 import com.sonin.common.tool.util.BeanExtUtils;
 import com.sonin.common.tool.util.JoinSqlUtils;
@@ -78,14 +80,25 @@ public class DemoController {
         Result<Page<DemoVO>> result = new Result<>();
         Demo demo = BeanExtUtils.bean2Bean(demoDTO, Demo.class);
         // 不带拼接条件
-        String sql = JoinSqlUtils.joinSqlQuery(demo);
+        String sql = JoinSqlUtils.multiJoinSqlQuery(demo);
         // 带拼接条件
-        String sql2 = JoinSqlUtils.joinSqlTermQuery(demo);
+        String sql2 = JoinSqlUtils.multiJoinSqlTermQuery(demo);
         Page page = new Page(1, 10);
         Page<Map<String, Object>> pageMapList = iCommonSqlService.queryForPage(page, sql);
         List<DemoVO> demoVOList = JoinSqlUtils.maps2Beans(pageMapList.getRecords(), DemoVO.class);
         page.setRecords(demoVOList);
         result.setResult(page);
+        return result;
+    }
+
+    @CustomExceptionAnno(description = "relation-分页查询")
+    @PostMapping("/relationPage")
+    public Result<?> relationPageCtrl(@RequestBody DemoRelationDTO demoRelationDTO) throws Exception {
+        Result<?> result = new Result<>();
+        DemoRelation demoRelation = BeanExtUtils.bean2Bean(demoRelationDTO, DemoRelation.class);
+        // 不带拼接条件
+        String sql = JoinSqlUtils.singleJoinSqlQuery(demoRelation);
+        System.out.println(sql);
         return result;
     }
 
