@@ -133,13 +133,13 @@ public class JoinSqlUtils {
             }
             target2ForeignKeyMap.put(joinSqlAnno.targetClass(), CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, joinSqlAnno.foreignKey()));
             target2PrimaryKeyMap.put(joinSqlAnno.targetClass(), field.getType().getSimpleName() + "_" + CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, joinSqlAnno.primaryKey()));
-            String className = subObj.getClass().getSimpleName();
+            String className = field.getType().getSimpleName();
             String tableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, className);
             alias = aliasStrBuilder.toString().replaceFirst("_", "");
             if (i == 0) {
-                sql = "select " + getColumns(subObj) + " from " + tableName + " as " + className;
+                sql = "select " + getColumns(field.getType()) + " from " + tableName + " as " + className;
             } else {
-                sql = "select " + alias + ".*, " + getColumns(subObj) + " from " + tableName + " as " + className + " inner join (" + sql + ") as " + alias + " on " + className + "." + target2ForeignKeyMap.get(field.getType()) + " = " + alias + "." + target2PrimaryKeyMap.get(field.getType());
+                sql = "select " + alias + ".*, " + getColumns(field.getType()) + " from " + tableName + " as " + className + " inner join (" + sql + ") as " + alias + " on " + className + "." + target2ForeignKeyMap.get(field.getType()) + " = " + alias + "." + target2PrimaryKeyMap.get(field.getType());
             }
             aliasStrBuilder.append("_").append(className);
         }
@@ -193,12 +193,12 @@ public class JoinSqlUtils {
      * select DemoA.id as DemoA_id, DemoA.a_name as DemoA_AName from demo_a as DemoA
      * e.g: DemoA.id as DemoA_id, DemoA.a_name as DemoA_aName
      *
-     * @param subObj
+     * @param subClass
      * @return
      */
-    private static <M> String getColumns(M subObj) {
-        String className = subObj.getClass().getSimpleName();
-        Field[] fields = subObj.getClass().getDeclaredFields();
+    private static <M> String getColumns(Class<M> subClass) {
+        String className = subClass.getSimpleName();
+        Field[] fields = subClass.getDeclaredFields();
         StringBuilder stringBuilder = new StringBuilder();
         for (Field field : fields) {
             JoinSqlQueryAnno joinSqlQueryAnno = field.getAnnotation(JoinSqlQueryAnno.class);
