@@ -1,7 +1,7 @@
 package com.sonin.common.module.common.service.impl;
 
 import com.sonin.common.module.common.service.ICrudSqlService;
-import com.sonin.common.tool.callback.IJoinSqlCrudCallback;
+import com.sonin.common.tool.callback.ICrudSqlCrudCallback;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.session.SqlSession;
@@ -26,19 +26,19 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public Boolean save(Object object) throws Exception {
-        return this.doJoinSqlOption((sqlSession, sqlStatement, subObj) -> sqlSession.insert(sqlStatement + "insert", subObj), object);
+        return this.doCrudSqlOption((sqlSession, sqlStatement, subObj) -> sqlSession.insert(sqlStatement + "insert", subObj), object);
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public Boolean save(Object... subObjs) throws Exception {
-        return this.doJoinSqlOption((sqlSession, sqlStatement, subObj) -> sqlSession.insert(sqlStatement + "insert", subObj), subObjs);
+        return this.doCrudSqlOption((sqlSession, sqlStatement, subObj) -> sqlSession.insert(sqlStatement + "insert", subObj), subObjs);
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public Boolean update(Object object) throws Exception {
-        return this.doJoinSqlOption((sqlSession, sqlStatement, subObj) -> {
+        return this.doCrudSqlOption((sqlSession, sqlStatement, subObj) -> {
             MapperMethod.ParamMap<Object> param = new MapperMethod.ParamMap<>();
             param.put("et", subObj);
             return sqlSession.update(sqlStatement + "updateById", param);
@@ -48,7 +48,7 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public Boolean update(Object... subObjs) throws Exception {
-        return this.doJoinSqlOption((sqlSession, sqlStatement, subObj) -> {
+        return this.doCrudSqlOption((sqlSession, sqlStatement, subObj) -> {
             MapperMethod.ParamMap<Object> param = new MapperMethod.ParamMap<>();
             param.put("et", subObj);
             return sqlSession.update(sqlStatement + "updateById", param);
@@ -58,16 +58,16 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public Boolean delete(Object... subObjs) throws Exception {
-        return this.doJoinSqlOption((sqlSession, sqlStatement, subObj) -> sqlSession.delete(sqlStatement + "deleteById", subObj), subObjs);
+        return this.doCrudSqlOption((sqlSession, sqlStatement, subObj) -> sqlSession.delete(sqlStatement + "deleteById", subObj), subObjs);
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public Boolean delete(Object object) throws Exception {
-        return this.doJoinSqlOption((sqlSession, sqlStatement, subObj) -> sqlSession.delete(sqlStatement + "deleteById", subObj), object);
+        return this.doCrudSqlOption((sqlSession, sqlStatement, subObj) -> sqlSession.delete(sqlStatement + "deleteById", subObj), object);
     }
 
-    private Boolean doJoinSqlOption(IJoinSqlCrudCallback iJoinSqlCrudCallback, Object object) throws Exception {
+    private Boolean doCrudSqlOption(ICrudSqlCrudCallback iCrudSqlCrudCallback, Object object) throws Exception {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Throwable var5 = null;
         try {
@@ -80,7 +80,7 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
                 if (subObj == null) {
                     continue;
                 }
-                this.doHandle(iJoinSqlCrudCallback, sqlSession, subObj);
+                this.doHandle(iCrudSqlCrudCallback, sqlSession, subObj);
             }
             sqlSession.flushStatements();
             return true;
@@ -102,7 +102,7 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
         }
     }
 
-    private Boolean doJoinSqlOption(IJoinSqlCrudCallback iJoinSqlCrudCallback, Object... subObjs) throws Exception {
+    private Boolean doCrudSqlOption(ICrudSqlCrudCallback iCrudSqlCrudCallback, Object... subObjs) throws Exception {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Throwable var5 = null;
         try {
@@ -110,7 +110,7 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
                 if (subObj == null) {
                     continue;
                 }
-                this.doHandle(iJoinSqlCrudCallback, sqlSession, subObj);
+                this.doHandle(iCrudSqlCrudCallback, sqlSession, subObj);
             }
             sqlSession.flushStatements();
             return true;
@@ -132,7 +132,7 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
         }
     }
 
-    private void doHandle(IJoinSqlCrudCallback iJoinSqlCrudCallback, SqlSession sqlSession, Object subObj) throws Exception {
+    private void doHandle(ICrudSqlCrudCallback iCrudSqlCrudCallback, SqlSession sqlSession, Object subObj) throws Exception {
         String[] fieldNames = subObj.getClass().getName().split("\\.");
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < fieldNames.length - 2; i++) {
@@ -140,7 +140,7 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
         }
         stringBuilder.append(".mapper.").append(fieldNames[fieldNames.length - 1]).append("Mapper.");
         String sqlStatement = stringBuilder.toString().replaceFirst("\\.", "");
-        Integer val0 = iJoinSqlCrudCallback.doJoinSqlCrud(sqlSession, sqlStatement, subObj);
+        Integer val0 = iCrudSqlCrudCallback.doCrudSql(sqlSession, sqlStatement, subObj);
         log.info("sql: {}crud, affectRows: {}", sqlStatement, val0);
     }
 
