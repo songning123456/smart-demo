@@ -8,6 +8,8 @@ import com.sonin.common.module.common.service.ICrudSqlService;
 import com.sonin.common.module.demo.dto.DemoDTO;
 import com.sonin.common.module.demo.dto.DemoRelationDTO;
 import com.sonin.common.module.demo.entity.Demo;
+import com.sonin.common.module.demo.entity.DemoA;
+import com.sonin.common.module.demo.entity.DemoC;
 import com.sonin.common.module.demo.entity.DemoRelation;
 import com.sonin.common.module.demo.vo.DemoVO;
 import com.sonin.common.tool.util.BeanExtUtils;
@@ -98,6 +100,13 @@ public class DemoController {
         DemoRelation demoRelation = BeanExtUtils.bean2Bean(demoRelationDTO, DemoRelation.class);
         // 不带拼接条件
         String sql = JoinSqlUtils.singleJoinSqlQuery(demoRelation);
+        // 带拼接条件
+        DemoA demoA = new DemoA();
+        demoA.setId("20211019170656031945607463903086");
+        DemoC demoC = new DemoC();
+        demoC.setCName("c");
+        String sql2 = JoinSqlUtils.singleJoinSqlTermQuery(demoRelation, demoA, demoC);
+        // 查询语句
         Page page = new Page(1, 10);
         Page<Map<String, Object>> pageMapList = iCommonSqlService.queryForPage(page, sql);
         List<DemoVO> demoVOList = JoinSqlUtils.maps2Beans(pageMapList.getRecords(), DemoVO.class);

@@ -105,7 +105,7 @@ public class JoinSqlUtils {
     }
 
     /**
-     * Object种包含多个subObj，1对1拼接inner join
+     * Object种包含多个subObj，1对1拼接根据条件查询：inner join
      *
      * @param object
      * @return
@@ -152,7 +152,7 @@ public class JoinSqlUtils {
     }
 
     /**
-     * Object种包含多个subObj，1对1拼接inner join 并查询
+     * Object中包含多个subObj，1对1拼接inner join 并 查询
      *
      * @param object
      * @return
@@ -190,7 +190,7 @@ public class JoinSqlUtils {
     }
 
     /**
-     * 多个Object relation: inner join
+     * 多个Object relation查询: inner join
      *
      * @param object
      * @param <M>
@@ -222,6 +222,38 @@ public class JoinSqlUtils {
         alias = aliasStrBuilder.toString().replaceFirst("_", "");
         sql = "select " + alias + ".* from (" + sql + ") as " + alias + " where 1 = 1";
         return sql;
+    }
+
+    /**
+     * 多个Object relation根据条件查询: inner join
+     *
+     * @param mObject: xxxRelation
+     * @return
+     * @throws Exception
+     */
+    public static <M> String singleJoinSqlTermQuery(M mObject, Object... otherObjs) throws Exception {
+        String joinSql = singleJoinSqlQuery(mObject);
+        StringBuilder termSqlStrBuilder = new StringBuilder();
+        List<Object> objects = new ArrayList<>();
+        Collections.addAll(objects, mObject, otherObjs);
+        for (Object subObj : objects) {
+            Field[] subFields = subObj.getClass().getDeclaredFields();
+            for (Field subField : subFields) {
+                subField.setAccessible(true);
+                Object subFieldVal = subField.get(subObj);
+                subField.setAccessible(false);
+                JoinSqlQueryAnno joinSqlQueryAnno = subField.getAnnotation(JoinSqlQueryAnno.class);
+                if (joinSqlQueryAnno == null || !joinSqlQueryAnno.isUsed() || subFieldVal == null || "".equals(subFieldVal)) {
+                    continue;
+                }
+                JoinSqlQueryEnum joinSqlQueryEnum = joinSqlQueryAnno.joinSqlQueryEnum();
+                String sqlTemplate = joinSqlQueryEnum.getSql();
+                sqlTemplate = sqlTemplate.replace("${var0}", subObj.getClass().getSimpleName() + "_" + subField.getName());
+                sqlTemplate = sqlTemplate.replace("${val0}", subFieldVal + "");
+                termSqlStrBuilder.append(sqlTemplate);
+            }
+        }
+        return joinSql + termSqlStrBuilder.toString();
     }
 
     /**
