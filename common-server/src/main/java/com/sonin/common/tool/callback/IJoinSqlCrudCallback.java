@@ -1,4 +1,4 @@
-package com.sonin.common.tool.service;
+package com.sonin.common.tool.callback;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.lang.Nullable;

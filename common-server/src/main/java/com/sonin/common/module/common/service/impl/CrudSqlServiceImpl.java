@@ -1,7 +1,7 @@
 package com.sonin.common.module.common.service.impl;
 
 import com.sonin.common.module.common.service.ICrudSqlService;
-import com.sonin.common.tool.service.IJoinSqlCrudCallback;
+import com.sonin.common.tool.callback.IJoinSqlCrudCallback;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.session.SqlSession;

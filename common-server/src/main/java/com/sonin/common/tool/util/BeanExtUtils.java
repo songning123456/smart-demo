@@ -1,7 +1,7 @@
 package com.sonin.common.tool.util;
 
 import com.sonin.common.tool.annotation.BeanAnno;
-import com.sonin.common.tool.service.IBeanConvertCallback;
+import com.sonin.common.tool.callback.IBeanConvertCallback;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
