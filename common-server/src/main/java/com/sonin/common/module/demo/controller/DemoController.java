@@ -93,12 +93,16 @@ public class DemoController {
 
     @CustomExceptionAnno(description = "relation-分页查询")
     @PostMapping("/relationPage")
-    public Result<?> relationPageCtrl(@RequestBody DemoRelationDTO demoRelationDTO) throws Exception {
-        Result<?> result = new Result<>();
+    public Result<Page<DemoVO>> relationPageCtrl(@RequestBody DemoRelationDTO demoRelationDTO) throws Exception {
+        Result<Page<DemoVO>> result = new Result<>();
         DemoRelation demoRelation = BeanExtUtils.bean2Bean(demoRelationDTO, DemoRelation.class);
         // 不带拼接条件
         String sql = JoinSqlUtils.singleJoinSqlQuery(demoRelation);
-        System.out.println(sql);
+        Page page = new Page(1, 10);
+        Page<Map<String, Object>> pageMapList = iCommonSqlService.queryForPage(page, sql);
+        List<DemoVO> demoVOList = JoinSqlUtils.maps2Beans(pageMapList.getRecords(), DemoVO.class);
+        page.setRecords(demoVOList);
+        result.setResult(page);
         return result;
     }
 

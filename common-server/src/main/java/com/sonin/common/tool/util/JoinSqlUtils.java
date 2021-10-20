@@ -281,6 +281,9 @@ public class JoinSqlUtils {
                 String subClassName = key.split("_")[0];
                 String subFieldName = key.split("_")[1];
                 Object subObj = class2ObjMap.get(subClassName);
+                if (subObj == null) {
+                    continue;
+                }
                 Field subField = subObj.getClass().getDeclaredField(subFieldName);
                 subField.setAccessible(true);
                 subField.set(subObj, val);
