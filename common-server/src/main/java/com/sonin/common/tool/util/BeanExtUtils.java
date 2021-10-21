@@ -237,10 +237,12 @@ public class BeanExtUtils {
                 }
             } else {
                 for (Field srcField : srcFieldList) {
+                    srcField.setAccessible(true);
                     srcMap.put(srcField.getName(), srcField.get(src));
                     beanAnnoFunc(src, srcField, annoMap);
                 }
                 for (Field targetField : targetFieldList) {
+                    targetField.setAccessible(true);
                     setTargetFunc(targetField, target, srcMap, annoMap, iBeanConvertCallback);
                 }
             }
@@ -280,6 +282,7 @@ public class BeanExtUtils {
                 }
             }
         }
+        srcField.setAccessible(false);
     }
 
     /**
@@ -300,6 +303,7 @@ public class BeanExtUtils {
         } else {
             targetField.set(target, srcMap.get(targetField.getName()));
         }
+        targetField.setAccessible(false);
     }
 
     /**
@@ -406,6 +410,7 @@ public class BeanExtUtils {
             for (Field srcField : srcFields) {
                 srcField.setAccessible(true);
                 map.put(srcField.getName(), srcField.get(src));
+                srcField.setAccessible(false);
             }
             srcClass = srcClass.getSuperclass();
         }
@@ -442,12 +447,15 @@ public class BeanExtUtils {
                         srcField.setAccessible(true);
                         map.put(srcField.getName(), srcField.get(src));
                         fieldList.add(srcField);
+                        srcField.setAccessible(false);
                     }
                     srcClass = srcClass.getSuperclass();
                 }
             } else {
                 for (Field srcField : fieldList) {
+                    srcField.setAccessible(true);
                     map.put(srcField.getName(), srcField.get(src));
+                    srcField.setAccessible(false);
                 }
             }
             mapList.add(map);
