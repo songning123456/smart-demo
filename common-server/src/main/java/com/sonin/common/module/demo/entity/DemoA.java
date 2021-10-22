@@ -24,5 +24,4 @@ public class DemoA {
      */
     private String aName;
 
-
 }
