@@ -1,13 +1,20 @@
 package com.sonin.common.module.demo.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sonin.common.aop.annotation.CustomExceptionAnno;
 import com.sonin.common.constant.Result;
 import com.sonin.common.module.demo.dto.DemoADTO;
 import com.sonin.common.module.demo.entity.DemoA;
+import com.sonin.common.module.demo.service.IDemoAService;
 import com.sonin.common.module.demo.vo.DemoAVO;
 import com.sonin.common.tool.callback.IBeanConvertCallback;
 import com.sonin.common.tool.util.BeanExtUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +31,11 @@ import java.util.Map;
 @RequestMapping("/demoA")
 @Slf4j
 public class DemoAController {
+
+    @Autowired
+    private IDemoAService iDemoAService;
+    @Autowired
+    private PlatformTransactionManager platformTransactionManager;
 
     @CustomExceptionAnno(description = "测试转换功能")
     @GetMapping("/bean2Bean")
@@ -76,6 +88,42 @@ public class DemoAController {
         demoADTO2.setAName("test2");
         demoADTOList.add(demoADTO2);
         List<Map<String, Object>> mapList = BeanExtUtils.beans2Maps(demoADTOList);
+        return result;
+    }
+
+    /**
+     * https://blog.csdn.net/qq_26323323/article/details/81908955
+     * @return
+     */
+    @CustomExceptionAnno(description = "测试事务")
+    @GetMapping("/testTran")
+    public Result<?> testTranCtrl() {
+        Result<?> result = new Result<>();
+        DefaultTransactionDefinition defaultTransactionDefinition = new DefaultTransactionDefinition();
+        defaultTransactionDefinition.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        TransactionStatus transactionStatus = platformTransactionManager.getTransaction(defaultTransactionDefinition);
+        try {
+            // do something
+            DemoA demoA = new DemoA();
+            demoA.setId("111");
+            demoA.setAName("sss");
+            iDemoAService.save(demoA);
+            DefaultTransactionDefinition defaultTransactionDefinition2 = new DefaultTransactionDefinition();
+            defaultTransactionDefinition2.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+            TransactionStatus transactionStatus2 = platformTransactionManager.getTransaction(defaultTransactionDefinition2);
+            try {
+                iDemoAService.remove(new QueryWrapper<>(demoA));
+                // int a = 1/ 0;
+                platformTransactionManager.commit(transactionStatus2);
+            } catch (Exception e) {
+                e.printStackTrace();
+                platformTransactionManager.rollback(transactionStatus2);
+            }
+            platformTransactionManager.commit(transactionStatus);
+        } catch (Exception e) {
+            e.printStackTrace();
+            platformTransactionManager.rollback(transactionStatus);
+        }
         return result;
     }
 
