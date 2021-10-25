@@ -12,7 +12,7 @@ import java.util.*;
 /**
  * @author sonin
  * @date 2021/10/17 19:38
- * T表示多层对象，M表示一层对象
+ * M multi表示多层对象，S single表示一层对象，T表示任意
  */
 public class JoinSqlUtils {
 
@@ -22,7 +22,7 @@ public class JoinSqlUtils {
      * @param object
      * @throws Exception
      */
-    public static <T> void setJoinSqlIdFunc(T object) throws Exception {
+    public static <M> void setJoinSqlIdFunc(M object) throws Exception {
         Field[] fields = object.getClass().getDeclaredFields();
         Map<Class<?>, Object> class2ObjMap = new HashMap<>();
         for (int i = fields.length - 1; i >= 0; i--) {
@@ -60,7 +60,7 @@ public class JoinSqlUtils {
      *
      * @param object
      */
-    public static <T> void checkSqlIdFunc(T object) throws Exception {
+    public static <M> void checkSqlIdFunc(M object) throws Exception {
         Field[] fields = object.getClass().getDeclaredFields();
         Map<Class<?>, Object> class2ObjMap = new HashMap<>();
         for (int i = fields.length - 1; i >= 0; i--) {
@@ -110,7 +110,7 @@ public class JoinSqlUtils {
      * @param object
      * @return
      */
-    public static <T> String multiJoinSqlQuery(T object) throws Exception {
+    public static <M> String multiJoinSqlQuery(M object) throws Exception {
         Field[] fields = object.getClass().getDeclaredFields();
         if (fields.length == 0) {
             throw new Exception(object.getClass().getSimpleName() + " NULL POINT EXCEPTION");
@@ -158,7 +158,7 @@ public class JoinSqlUtils {
      * @return
      * @throws Exception
      */
-    public static <T> String multiJoinSqlTermQuery(T object) throws Exception {
+    public static <M> String multiJoinSqlTermQuery(M object) throws Exception {
         String joinSql = multiJoinSqlQuery(object);
         Field[] fields = object.getClass().getDeclaredFields();
         StringBuilder termSqlStrBuilder = new StringBuilder();
@@ -193,11 +193,11 @@ public class JoinSqlUtils {
      * 多个Object relation查询: inner join
      *
      * @param object
-     * @param <M>
+     * @param <S>
      * @return
      * @throws Exception
      */
-    public static <M> String singleJoinSqlQuery(M object) throws Exception {
+    public static <S> String singleJoinSqlQuery(S object) throws Exception {
         Field[] fields = object.getClass().getDeclaredFields();
         if (fields.length == 0) {
             throw new Exception(object.getClass().getSimpleName() + " NULL POINT EXCEPTION");
@@ -227,15 +227,15 @@ public class JoinSqlUtils {
     /**
      * 多个Object relation根据条件查询: inner join
      *
-     * @param mObject: xxxRelation
+     * @param sObject: xxxRelation
      * @return
      * @throws Exception
      */
-    public static <M> String singleJoinSqlTermQuery(M mObject, Object... otherObjs) throws Exception {
-        String joinSql = singleJoinSqlQuery(mObject);
+    public static <S> String singleJoinSqlTermQuery(S sObject, Object... otherObjs) throws Exception {
+        String joinSql = singleJoinSqlQuery(sObject);
         StringBuilder termSqlStrBuilder = new StringBuilder();
         List<Object> objects = new ArrayList<>();
-        Collections.addAll(objects, mObject, otherObjs);
+        Collections.addAll(objects, sObject, otherObjs);
         for (Object subObj : objects) {
             Field[] subFields = subObj.getClass().getDeclaredFields();
             for (Field subField : subFields) {
@@ -264,7 +264,7 @@ public class JoinSqlUtils {
      * @param subClass
      * @return
      */
-    private static <M> String getColumns(Class<M> subClass) {
+    private static <T> String getColumns(Class<T> subClass) {
         String className = subClass.getSimpleName();
         Field[] fields = subClass.getDeclaredFields();
         StringBuilder stringBuilder = new StringBuilder();
