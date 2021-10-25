@@ -1,7 +1,7 @@
 package com.sonin.common.modules.common.service.impl;
 
 import com.sonin.common.modules.common.service.ICrudSqlService;
-import com.sonin.common.tool.callback.ICrudSqlCrudCallback;
+import com.sonin.common.tool.callback.ICrudSqlCallback;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.session.SqlSession;
@@ -67,7 +67,7 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
         return this.doCrudSqlOption((sqlSession, sqlStatement, subObj) -> sqlSession.delete(sqlStatement + "deleteById", subObj), object);
     }
 
-    private Boolean doCrudSqlOption(ICrudSqlCrudCallback iCrudSqlCrudCallback, Object object) throws Exception {
+    private Boolean doCrudSqlOption(ICrudSqlCallback iCrudSqlCallback, Object object) throws Exception {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Throwable var5 = null;
         try {
@@ -80,7 +80,7 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
                 if (subObj == null) {
                     continue;
                 }
-                this.doHandle(iCrudSqlCrudCallback, sqlSession, subObj);
+                this.doHandle(iCrudSqlCallback, sqlSession, subObj);
             }
             sqlSession.flushStatements();
             return true;
@@ -102,7 +102,7 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
         }
     }
 
-    private Boolean doCrudSqlOption(ICrudSqlCrudCallback iCrudSqlCrudCallback, Object... subObjs) throws Exception {
+    private Boolean doCrudSqlOption(ICrudSqlCallback iCrudSqlCallback, Object... subObjs) throws Exception {
         SqlSession sqlSession = sqlSessionFactory.openSession();
         Throwable var5 = null;
         try {
@@ -110,7 +110,7 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
                 if (subObj == null) {
                     continue;
                 }
-                this.doHandle(iCrudSqlCrudCallback, sqlSession, subObj);
+                this.doHandle(iCrudSqlCallback, sqlSession, subObj);
             }
             sqlSession.flushStatements();
             return true;
@@ -132,7 +132,7 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
         }
     }
 
-    private void doHandle(ICrudSqlCrudCallback iCrudSqlCrudCallback, SqlSession sqlSession, Object subObj) throws Exception {
+    private void doHandle(ICrudSqlCallback iCrudSqlCallback, SqlSession sqlSession, Object subObj) throws Exception {
         String[] fieldNames = subObj.getClass().getName().split("\\.");
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < fieldNames.length - 2; i++) {
@@ -140,7 +140,7 @@ public class CrudSqlServiceImpl implements ICrudSqlService {
         }
         stringBuilder.append(".mapper.").append(fieldNames[fieldNames.length - 1]).append("Mapper.");
         String sqlStatement = stringBuilder.toString().replaceFirst("\\.", "");
-        Integer val0 = iCrudSqlCrudCallback.doCrudSql(sqlSession, sqlStatement, subObj);
+        Integer val0 = iCrudSqlCallback.doCrudSql(sqlSession, sqlStatement, subObj);
         log.info("sql: {}crud, affectRows: {}", sqlStatement, val0);
     }
 

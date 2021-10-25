@@ -9,7 +9,7 @@ import org.springframework.lang.Nullable;
  * 实现join sql的add、delete、edit
  */
 @FunctionalInterface
-public interface ICrudSqlCrudCallback {
+public interface ICrudSqlCallback {
 
     @Nullable
     Integer doCrudSql(SqlSession sqlSession, String sqlStatement, Object object) throws Exception;
