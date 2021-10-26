@@ -190,6 +190,48 @@ public class JoinSqlUtils {
     }
 
     /**
+     * 多重对象 类型转换 maps => beans
+     *
+     * @param mapList
+     * @param clazz
+     * @param <M>
+     * @return
+     * @throws Exception
+     */
+    public static <M> List<M> multiMaps2Beans(List<Map<String, Object>> mapList, Class<M> clazz) throws Exception {
+        List<M> list = new ArrayList<>();
+        Map<String, Object> class2ObjMap = new LinkedHashMap<>();
+        for (Map<String, Object> map : mapList) {
+            M object = clazz.newInstance();
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                Object subObj = field.getType().newInstance();
+                field.setAccessible(true);
+                field.set(object, subObj);
+                field.setAccessible(false);
+                class2ObjMap.put(field.getType().getSimpleName(), subObj);
+            }
+            for (Map.Entry<String, Object> item : map.entrySet()) {
+                String key = item.getKey();
+                Object val = item.getValue();
+                String subClassName = key.split("_")[0];
+                String subFieldName = key.split("_")[1];
+                Object subObj = class2ObjMap.get(subClassName);
+                if (subObj == null) {
+                    continue;
+                }
+                Field subField = subObj.getClass().getDeclaredField(subFieldName);
+                subField.setAccessible(true);
+                subField.set(subObj, val);
+                subField.setAccessible(false);
+            }
+            list.add(object);
+        }
+        class2ObjMap.clear();
+        return list;
+    }
+
+    /**
      * 多个Object relation查询: inner join
      *
      * @param object
@@ -257,6 +299,33 @@ public class JoinSqlUtils {
     }
 
     /**
+     * 单重对象 类型转换 maps => beans
+     *
+     * @param mapList
+     * @param clazz
+     * @param <S>
+     * @return
+     * @throws Exception
+     */
+    public static <S> List<S> singleMaps2Beans(List<Map<String, Object>> mapList, Class<S> clazz) throws Exception {
+        List<S> list = new ArrayList<>();
+        for (Map<String, Object> map : mapList) {
+            S object = clazz.newInstance();
+            for (Map.Entry<String, Object> item : map.entrySet()) {
+                String key = item.getKey();
+                Object val = item.getValue();
+                String fieldName = key.split("_")[1];
+                Field field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                field.set(object, val);
+                field.setAccessible(false);
+            }
+            list.add(object);
+        }
+        return list;
+    }
+
+    /**
      * 获取
      * select DemoA.id as DemoA_id, DemoA.a_name as DemoA_AName from demo_a as DemoA
      * e.g: DemoA.id as DemoA_id, DemoA.a_name as DemoA_aName
@@ -283,48 +352,6 @@ public class JoinSqlUtils {
             stringBuilder.append(", ").append(className).append(".").append(columnName).append(" as ").append(className).append("_").append(fieldName);
         }
         return stringBuilder.toString().replaceFirst(", ", "");
-    }
-
-    /**
-     * 类型转换 maps => beans
-     *
-     * @param mapList
-     * @param clazz
-     * @param <T>
-     * @return
-     * @throws Exception
-     */
-    public static <T> List<T> maps2Beans(List<Map<String, Object>> mapList, Class<T> clazz) throws Exception {
-        List<T> list = new ArrayList<>();
-        Map<String, Object> class2ObjMap = new LinkedHashMap<>();
-        for (Map<String, Object> map : mapList) {
-            T object = clazz.newInstance();
-            Field[] fields = clazz.getDeclaredFields();
-            for (Field field : fields) {
-                Object subObj = field.getType().newInstance();
-                field.setAccessible(true);
-                field.set(object, subObj);
-                field.setAccessible(false);
-                class2ObjMap.put(field.getType().getSimpleName(), subObj);
-            }
-            for (Map.Entry<String, Object> item : map.entrySet()) {
-                String key = item.getKey();
-                Object val = item.getValue();
-                String subClassName = key.split("_")[0];
-                String subFieldName = key.split("_")[1];
-                Object subObj = class2ObjMap.get(subClassName);
-                if (subObj == null) {
-                    continue;
-                }
-                Field subField = subObj.getClass().getDeclaredField(subFieldName);
-                subField.setAccessible(true);
-                subField.set(subObj, val);
-                subField.setAccessible(false);
-            }
-            list.add(object);
-        }
-        class2ObjMap.clear();
-        return list;
     }
 
 }

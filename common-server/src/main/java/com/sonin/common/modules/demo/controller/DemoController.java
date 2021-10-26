@@ -87,7 +87,7 @@ public class DemoController {
         String sql2 = JoinSqlUtils.multiJoinSqlTermQuery(demo);
         Page page = new Page(1, 10);
         Page<Map<String, Object>> pageMapList = iCommonSqlService.queryForPage(page, sql);
-        List<DemoVO> demoVOList = JoinSqlUtils.maps2Beans(pageMapList.getRecords(), DemoVO.class);
+        List<DemoVO> demoVOList = JoinSqlUtils.multiMaps2Beans(pageMapList.getRecords(), DemoVO.class);
         page.setRecords(demoVOList);
         result.setResult(page);
         return result;
@@ -109,7 +109,7 @@ public class DemoController {
         // 查询语句
         Page page = new Page(1, 10);
         Page<Map<String, Object>> pageMapList = iCommonSqlService.queryForPage(page, sql);
-        List<DemoVO> demoVOList = JoinSqlUtils.maps2Beans(pageMapList.getRecords(), DemoVO.class);
+        List<DemoVO> demoVOList = JoinSqlUtils.multiMaps2Beans(pageMapList.getRecords(), DemoVO.class);
         page.setRecords(demoVOList);
         result.setResult(page);
         return result;
