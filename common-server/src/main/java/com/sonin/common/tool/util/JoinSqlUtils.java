@@ -309,19 +309,32 @@ public class JoinSqlUtils {
      */
     public static <S> List<S> singleMaps2Beans(List<Map<String, Object>> mapList, Class<S> clazz) throws Exception {
         List<S> list = new ArrayList<>();
+        Map<String, Field> fieldMap = new HashMap<>(2);
+        Class tmpClass = clazz;
+        while (tmpClass != null && !"java.lang.Object".equals(tmpClass.getName())) {
+            Field[] fields = tmpClass.getDeclaredFields();
+            for (Field field : fields) {
+                fieldMap.put(field.getName(), field);
+            }
+            tmpClass = tmpClass.getSuperclass();
+        }
         for (Map<String, Object> map : mapList) {
             S object = clazz.newInstance();
             for (Map.Entry<String, Object> item : map.entrySet()) {
                 String key = item.getKey();
                 Object val = item.getValue();
                 String fieldName = key.split("_")[1];
-                Field field = clazz.getDeclaredField(fieldName);
+                Field field = fieldMap.get(fieldName);
+                if (field == null) {
+                    continue;
+                }
                 field.setAccessible(true);
                 field.set(object, val);
                 field.setAccessible(false);
             }
             list.add(object);
         }
+        fieldMap.clear();
         return list;
     }
 
