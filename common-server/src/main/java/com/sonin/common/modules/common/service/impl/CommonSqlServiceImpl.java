@@ -1,8 +1,6 @@
 package com.sonin.common.modules.common.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.sonin.common.modules.common.entity.CommonSql;
 import com.sonin.common.modules.common.mapper.CommonSqlMapper;
 import com.sonin.common.modules.common.service.ICommonSqlService;
 import org.springframework.stereotype.Service;
@@ -16,7 +14,7 @@ import java.util.Map;
  * @date 2021/10/13 14:03
  */
 @Service
-public class CommonSqlServiceImpl extends ServiceImpl<CommonSqlMapper, CommonSql> implements ICommonSqlService {
+public class CommonSqlServiceImpl implements ICommonSqlService {
 
     @Resource
     private CommonSqlMapper commonSqlMapper;
