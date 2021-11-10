@@ -2,13 +2,16 @@ package com.sonin.common;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sonin.common.entity.EquipmentRepairAndChild;
+import com.sonin.common.modules.common.mapper.CommonSqlMapper;
 import com.sonin.common.modules.demo.entity.DemoA;
 import com.sonin.common.modules.demo.entity.DemoD;
 import com.sonin.common.tool.util.JoinSqlUtils;
 import javassist.*;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Method;
 
 /**
@@ -17,6 +20,9 @@ import java.lang.reflect.Method;
  */
 @SpringBootTest
 public class CommonServerApplicationTests {
+
+    @Autowired
+    private CommonSqlMapper commonSqlMapper;
 
     @Test
     public void createField() throws Exception {
@@ -58,6 +64,14 @@ public class CommonServerApplicationTests {
     public void testJoinSql() throws Exception {
         String sql = JoinSqlUtils.multiJoinSqlQuery(new EquipmentRepairAndChild());
         System.out.println(sql);
+    }
+
+    @Test
+    public void testDeleteWrapper() {
+        QueryWrapper<?> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id", "111");
+        int res = commonSqlMapper.deleteWrapper("delete from demo_a", queryWrapper);
+        System.out.println("");
     }
 
 }

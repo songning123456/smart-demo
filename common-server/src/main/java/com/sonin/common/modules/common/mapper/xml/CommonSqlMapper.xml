@@ -18,8 +18,16 @@
          ${sql}
     </update>
 
+    <update id="updateWrapper">
+         update ${tableName} set ${eq.sqlSet} ${ew.customSqlSegment}
+    </update>
+
     <delete id="delete">
          ${sql}
+    </delete>
+
+    <delete id="deleteWrapper">
+         delete from ${tableName} ${ew.customSqlSegment}
     </delete>
 
 </mapper>

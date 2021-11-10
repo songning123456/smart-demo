@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
  * @date 2021/10/17 9:40
  * 配置分页插件
  */
-@MapperScan(value = {"com.sonin.common.module.**.mapper*"})
+@MapperScan(value = {"com.sonin.common.modules.**.mapper*"})
 @Configuration
 public class MybatisPlusConfig {
 

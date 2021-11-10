@@ -1,14 +1,17 @@
 package com.sonin.common.modules.demo.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.sonin.common.aop.annotation.CustomExceptionAnno;
 import com.sonin.common.constant.Result;
+import com.sonin.common.modules.common.mapper.CommonSqlMapper;
 import com.sonin.common.modules.demo.dto.DemoADTO;
 import com.sonin.common.modules.demo.entity.DemoA;
 import com.sonin.common.modules.demo.service.IDemoAService;
 import com.sonin.common.modules.demo.vo.DemoAVO;
 import com.sonin.common.tool.callback.IBeanConvertCallback;
 import com.sonin.common.tool.util.BeanExtUtils;
+import com.sonin.common.tool.util.JoinSqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -36,6 +39,8 @@ public class DemoAController {
     private IDemoAService iDemoAService;
     @Autowired
     private PlatformTransactionManager platformTransactionManager;
+    @Autowired
+    private CommonSqlMapper commonSqlMapper;
 
     @CustomExceptionAnno(description = "测试转换功能")
     @GetMapping("/bean2Bean")
@@ -93,6 +98,7 @@ public class DemoAController {
 
     /**
      * https://blog.csdn.net/qq_26323323/article/details/81908955
+     *
      * @return
      */
     @CustomExceptionAnno(description = "测试事务")
@@ -125,6 +131,23 @@ public class DemoAController {
             platformTransactionManager.rollback(transactionStatus);
         }
         return result;
+    }
+
+    @GetMapping("/test")
+    public void test() throws Exception {
+        QueryWrapper<?> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id", "232");
+        queryWrapper.getCustomSqlSegment();
+//        JoinSqlUtils.checkSqlInject("demo_a");
+//        int res = commonSqlMapper.deleteWrapper("demo_a", queryWrapper);
+        UpdateWrapper<?> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.set("a_name", "123456");
+        updateWrapper.eq("id", 232);
+        System.out.println(updateWrapper.getSqlSet());
+        System.out.println(updateWrapper.getCustomSqlSegment());
+        JoinSqlUtils.checkSqlInject("demo_a");
+        int res = commonSqlMapper.updateWrapper("demo_a", updateWrapper);
+        System.out.println(res);
     }
 
 }

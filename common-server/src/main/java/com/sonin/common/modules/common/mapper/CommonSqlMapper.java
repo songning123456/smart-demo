@@ -1,5 +1,8 @@
 package com.sonin.common.modules.common.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 
@@ -20,6 +23,10 @@ public interface CommonSqlMapper {
 
     Integer update(@Param("sql") String sql);
 
+    Integer updateWrapper(@Param("tableName") String tableName, @Param(Constants.WRAPPER) UpdateWrapper<?> updateWrapper);
+
     Integer delete(@Param("sql") String sql);
+
+    Integer deleteWrapper(@Param("tableName") String tableName, @Param(Constants.WRAPPER) QueryWrapper<?> queryWrapper);
 
 }
