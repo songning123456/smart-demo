@@ -1,6 +1,10 @@
 package com.sonin.common;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.sonin.common.entity.EquipmentRepairAndChild;
+import com.sonin.common.modules.demo.entity.DemoA;
 import com.sonin.common.modules.demo.entity.DemoD;
+import com.sonin.common.tool.util.JoinSqlUtils;
 import javassist.*;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,6 +45,19 @@ public class CommonServerApplicationTests {
         setMethod.invoke(newDemoD, "123");
         Method getMethod = newDemoD.getClass().getDeclaredMethod("getFieldName");
         System.out.println(getMethod.invoke(newDemoD));
+    }
+
+    @Test
+    public void testSqlInject() throws Exception {
+        String sql = "select * from demo_a where id = '111'";
+        JoinSqlUtils.checkSqlInject(sql);
+        System.out.println("");
+    }
+
+    @Test
+    public void testJoinSql() throws Exception {
+        String sql = JoinSqlUtils.multiJoinSqlQuery(new EquipmentRepairAndChild());
+        System.out.println(sql);
     }
 
 }

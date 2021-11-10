@@ -8,6 +8,8 @@ import com.sonin.common.tool.enums.JoinSqlQueryEnum;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author sonin
@@ -365,6 +367,19 @@ public class JoinSqlUtils {
             stringBuilder.append(", ").append(className).append(".").append(columnName).append(" as ").append(className).append("_").append(fieldName);
         }
         return stringBuilder.toString().replaceFirst(", ", "");
+    }
+
+    /**
+     * 检测是否SQL注入
+     *
+     * @param sql
+     */
+    public static void checkSqlInject(String sql) throws Exception {
+        Pattern pattern = Pattern.compile("\\b(and|exec|insert|select|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|declare|or)\\b|(\\*|;|\\+|'|%)");
+        Matcher matcher = pattern.matcher(sql.toLowerCase());
+        if (matcher.find()) {
+            throw new Exception("SQL注入: " + sql);
+        }
     }
 
 }
