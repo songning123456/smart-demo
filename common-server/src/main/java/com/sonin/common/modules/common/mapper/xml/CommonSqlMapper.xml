@@ -19,7 +19,7 @@
     </update>
 
     <update id="updateWrapper">
-         update ${tableName} set ${eq.sqlSet} ${ew.customSqlSegment}
+         update ${tableName} set ${ew.sqlSet} ${ew.customSqlSegment}
     </update>
 
     <delete id="delete">

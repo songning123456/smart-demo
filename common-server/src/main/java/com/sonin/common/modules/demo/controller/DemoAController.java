@@ -136,17 +136,19 @@ public class DemoAController {
     @GetMapping("/test")
     public void test() throws Exception {
         QueryWrapper<?> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("id", "232");
-        queryWrapper.getCustomSqlSegment();
+//        queryWrapper.eq("id", "232");
+//        queryWrapper.getCustomSqlSegment();
 //        JoinSqlUtils.checkSqlInject("demo_a");
 //        int res = commonSqlMapper.deleteWrapper("demo_a", queryWrapper);
         UpdateWrapper<?> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.set("a_name", "123456");
-        updateWrapper.eq("id", 232);
+        updateWrapper.set("a_id", "123456");
+        updateWrapper.set("b_id", "123456");
+        updateWrapper.set("c_id", "123456");
+        updateWrapper.set("d_id", "123456");
+        updateWrapper.eq("id", 111);
         System.out.println(updateWrapper.getSqlSet());
         System.out.println(updateWrapper.getCustomSqlSegment());
-        JoinSqlUtils.checkSqlInject("demo_a");
-        int res = commonSqlMapper.updateWrapper("demo_a", updateWrapper);
+        int res = commonSqlMapper.updateWrapper("demo_relation", updateWrapper);
         System.out.println(res);
     }
 
