@@ -1,5 +1,6 @@
 package com.sonin.common.modules.demo.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sonin.common.aop.annotation.CustomExceptionAnno;
 import com.sonin.common.constant.Result;
@@ -7,11 +8,9 @@ import com.sonin.common.modules.common.service.ICommonSqlService;
 import com.sonin.common.modules.common.service.ICrudSqlService;
 import com.sonin.common.modules.demo.dto.DemoDTO;
 import com.sonin.common.modules.demo.dto.DemoRelationDTO;
-import com.sonin.common.modules.demo.entity.Demo;
-import com.sonin.common.modules.demo.entity.DemoA;
-import com.sonin.common.modules.demo.entity.DemoC;
-import com.sonin.common.modules.demo.entity.DemoRelation;
+import com.sonin.common.modules.demo.entity.*;
 import com.sonin.common.modules.demo.vo.DemoVO;
+import com.sonin.common.tool.query.JoinWrapper;
 import com.sonin.common.tool.util.BeanExtUtils;
 import com.sonin.common.tool.util.JoinSqlUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -112,6 +111,25 @@ public class DemoController {
         List<DemoVO> demoVOList = JoinSqlUtils.multiMaps2Beans(pageMapList.getRecords(), DemoVO.class);
         page.setRecords(demoVOList);
         result.setResult(page);
+        return result;
+    }
+
+    @CustomExceptionAnno(description = "joinWrapper")
+    @PostMapping("/joinWrapper")
+    public Result<Object> joinWrapperCtrl(@RequestBody DemoDTO demoDTO) throws Exception {
+        Result<Object> result = new Result<>();
+        String sql = new JoinWrapper.Builder()
+                .includeFields(DemoA.class.getDeclaredField("id"))
+                .includeFields(DemoB.class.getDeclaredField("id"))
+                .excludeFields(DemoA.class.getDeclaredField("id"))
+                .addClass(DemoA.class, DemoB.class, DemoC.class)
+                .addCondition(DemoA.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
+                .addCondition(DemoB.class.getDeclaredField("id"), DemoC.class.getDeclaredField("bId"))
+                .build();
+        QueryWrapper<?> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("DemoA_id", "1");
+        List<Map<String, Object>> mapList = iCommonSqlService.queryWrapperForList(sql, queryWrapper);
+        result.setResult(mapList);
         return result;
     }
 

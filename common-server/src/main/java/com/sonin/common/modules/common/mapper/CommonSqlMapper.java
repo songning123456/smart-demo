@@ -17,9 +17,15 @@ public interface CommonSqlMapper {
 
     Map<String, Object> queryForMap(@Param("sql") String sql);
 
-    Page<Map<String, Object>> queryForPage(Page page, @Param("sql") String sql);
+    Map<String, Object> queryWrapperForMap(@Param("sql") String sql, @Param(Constants.WRAPPER) QueryWrapper<?> queryWrapper);
+
+    Page<Map<String, Object>> queryForPage(Page<?> page, @Param("sql") String sql);
+
+    Page<Map<String, Object>> queryWrapperForPage(Page<?> page, @Param("sql") String sql, @Param(Constants.WRAPPER) QueryWrapper<?> queryWrapper);
 
     List<Map<String, Object>> queryForList(@Param("sql") String sql);
+
+    List<Map<String, Object>> queryWrapperForList(@Param("sql") String sql, @Param(Constants.WRAPPER) QueryWrapper<?> queryWrapper);
 
     Integer update(@Param("sql") String sql);
 

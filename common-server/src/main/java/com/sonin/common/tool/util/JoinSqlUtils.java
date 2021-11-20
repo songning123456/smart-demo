@@ -3,10 +3,13 @@ package com.sonin.common.tool.util;
 import com.google.common.base.CaseFormat;
 import com.sonin.common.tool.annotation.JoinSqlAnno;
 import com.sonin.common.tool.annotation.JoinSqlQueryAnno;
+import com.sonin.common.tool.callback.IBeanConvertCallback;
 import com.sonin.common.tool.enums.JoinSqlQueryEnum;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -128,14 +131,8 @@ public class JoinSqlUtils {
             if (joinSqlAnno == null) {
                 continue;
             }
-            field.setAccessible(true);
-            Object subObj = field.get(object);
-            field.setAccessible(false);
-            if (subObj == null) {
-                throw new Exception(field.getName() + " NULL POINT EXCEPTION");
-            }
             target2ForeignKeyMap.put(joinSqlAnno.targetClass(), CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, joinSqlAnno.foreignKey()));
-            target2PrimaryKeyMap.put(joinSqlAnno.targetClass(), field.getType().getSimpleName() + "_" + CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, joinSqlAnno.primaryKey()));
+            target2PrimaryKeyMap.put(joinSqlAnno.targetClass(), field.getType().getSimpleName() + "_" + joinSqlAnno.primaryKey());
             String className = field.getType().getSimpleName();
             String tableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, className);
             alias = aliasStrBuilder.toString().replaceFirst("_", "");
@@ -151,6 +148,20 @@ public class JoinSqlUtils {
         target2ForeignKeyMap.clear();
         target2PrimaryKeyMap.clear();
         return sql;
+    }
+
+    /**
+     * 不带 where 1 = 1
+     *
+     * @param object
+     * @param <M>
+     * @return
+     * @throws Exception
+     */
+    public static <M> String multiJoinSqlQueryWithoutWhere(M object) throws Exception {
+        String joinSql = multiJoinSqlQuery(object);
+        joinSql = joinSql.replace(" where 1 = 1", "");
+        return joinSql;
     }
 
     /**
@@ -171,6 +182,9 @@ public class JoinSqlUtils {
             }
             field.setAccessible(true);
             Object subObj = field.get(object);
+            if (subObj == null) {
+                subObj = field.getType().newInstance();
+            }
             field.setAccessible(false);
             Field[] subFields = field.getType().getDeclaredFields();
             for (Field subField : subFields) {
@@ -181,6 +195,7 @@ public class JoinSqlUtils {
                 if (joinSqlQueryAnno == null || !joinSqlQueryAnno.isUsed() || subFieldVal == null || "".equals(subFieldVal)) {
                     continue;
                 }
+                checkSqlInject(subFieldVal + "");
                 JoinSqlQueryEnum joinSqlQueryEnum = joinSqlQueryAnno.joinSqlQueryEnum();
                 String sqlTemplate = joinSqlQueryEnum.getSql();
                 sqlTemplate = sqlTemplate.replace("${var0}", subObj.getClass().getSimpleName() + "_" + subField.getName());
@@ -265,7 +280,28 @@ public class JoinSqlUtils {
         }
         alias = aliasStrBuilder.toString().replaceFirst("_", "");
         sql = "select " + alias + ".* from (" + sql + ") as " + alias + " where 1 = 1";
+        // 起别名时，在类上加注解使用原始的对象
+        if (object.getClass().getAnnotation(JoinSqlAnno.class) != null && object.getClass().getAnnotation(JoinSqlAnno.class).targetClass() != Object.class) {
+            String srcClassName = object.getClass().getSimpleName();
+            String targetClassName = object.getClass().getAnnotation(JoinSqlAnno.class).targetClass().getSimpleName();
+            sql = sql.replaceAll(srcClassName, targetClassName);
+            sql = sql.replaceAll(CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, srcClassName), CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, targetClassName));
+        }
         return sql;
+    }
+
+    /**
+     * 不带 where 1 = 1
+     *
+     * @param object
+     * @param <S>
+     * @return
+     * @throws Exception
+     */
+    public static <S> String singleJoinSqlQueryWithoutWhere(S object) throws Exception {
+        String joinSql = singleJoinSqlQuery(object);
+        joinSql = joinSql.replace(" where 1 = 1", "");
+        return joinSql;
     }
 
     /**
@@ -290,6 +326,7 @@ public class JoinSqlUtils {
                 if (joinSqlQueryAnno == null || !joinSqlQueryAnno.isUsed() || subFieldVal == null || "".equals(subFieldVal)) {
                     continue;
                 }
+                checkSqlInject(subFieldVal + "");
                 JoinSqlQueryEnum joinSqlQueryEnum = joinSqlQueryAnno.joinSqlQueryEnum();
                 String sqlTemplate = joinSqlQueryEnum.getSql();
                 sqlTemplate = sqlTemplate.replace("${var0}", subObj.getClass().getSimpleName() + "_" + subField.getName());
@@ -325,7 +362,7 @@ public class JoinSqlUtils {
             for (Map.Entry<String, Object> item : map.entrySet()) {
                 String key = item.getKey();
                 Object val = item.getValue();
-                String fieldName = key.split("_")[1];
+                String fieldName = splitByLowerUnderscore(key);
                 Field field = fieldMap.get(fieldName);
                 if (field == null) {
                     continue;
@@ -338,6 +375,91 @@ public class JoinSqlUtils {
         }
         fieldMap.clear();
         return list;
+    }
+
+    /**
+     * map => map 删掉前缀Entity
+     *
+     * @param map
+     * @return
+     */
+    public static Map<String, Object> map2MapWithoutPrefix(Map<String, Object> map) {
+        Map<String, Object> withoutPrefixMap = new LinkedHashMap<>(2);
+        for (Map.Entry<String, Object> item : map.entrySet()) {
+            String srcFieldName = item.getKey();
+            Object srcFieldVal = item.getValue();
+            if (srcFieldVal instanceof Date) {
+                srcFieldVal = dateFormat("" + srcFieldVal, "yyyy-MM-dd HH:mm:ss");
+            }
+            withoutPrefixMap.put(splitByLowerUnderscore(srcFieldName), srcFieldVal);
+        }
+        return withoutPrefixMap;
+    }
+
+    /**
+     * map => map 删掉前缀Entity(回调)
+     *
+     * @param map
+     * @return
+     */
+    public static Map<String, Object> map2MapWithoutPrefix(Map<String, Object> map, Collection<String> includeFieldNames, Map<String, String> callbackMap, IBeanConvertCallback iBeanConvertCallback) {
+        Map<String, Object> withoutPrefixMap = new LinkedHashMap<>(2);
+        for (Map.Entry<String, Object> item : map.entrySet()) {
+            String srcFieldName = item.getKey();
+            if (includeFieldNames != null && !includeFieldNames.contains(srcFieldName)) {
+                continue;
+            }
+            Object srcFieldVal = item.getValue();
+            if (srcFieldVal instanceof Date) {
+                srcFieldVal = dateFormat("" + srcFieldVal, "yyyy-MM-dd HH:mm:ss");
+            }
+            withoutPrefixMap.put(splitByLowerUnderscore(srcFieldName), srcFieldVal);
+            String targetFieldName = callbackMap.get(srcFieldName);
+            if (targetFieldName != null) {
+                Object targetFieldVal = iBeanConvertCallback.doBeanConvert(targetFieldName, srcFieldVal);
+                withoutPrefixMap.put(splitByLowerUnderscore(targetFieldName), targetFieldVal);
+            }
+        }
+        return withoutPrefixMap;
+    }
+
+    private static String splitByLowerUnderscore(String srcFieldName) {
+        StringBuilder stringBuilder = new StringBuilder();
+        String[] srcFieldNames = srcFieldName.split("_");
+        int i = srcFieldNames.length > 1 ? 1 : 0;
+        while (i < srcFieldNames.length) {
+            stringBuilder.append("_").append(srcFieldNames[i]);
+            i++;
+        }
+        return stringBuilder.toString().replaceFirst("_", "");
+    }
+
+    /**
+     * maps => maps 删掉前缀Entity
+     *
+     * @param mapList
+     * @return
+     */
+    public static List<Map<String, Object>> maps2MapsWithoutPrefix(List<Map<String, Object>> mapList) {
+        List<Map<String, Object>> withoutPrefixMapList = new ArrayList<>();
+        for (Map<String, Object> map : mapList) {
+            withoutPrefixMapList.add(map2MapWithoutPrefix(map));
+        }
+        return withoutPrefixMapList;
+    }
+
+    /**
+     * maps => maps 删掉前缀Entity(回调)
+     *
+     * @param mapList
+     * @return
+     */
+    public static List<Map<String, Object>> maps2MapsWithoutPrefix(List<Map<String, Object>> mapList, Set<String> includeMap, Map<String, String> callbackMap, IBeanConvertCallback iBeanConvertCallback) {
+        List<Map<String, Object>> withoutPrefixMapList = new ArrayList<>();
+        for (Map<String, Object> map : mapList) {
+            withoutPrefixMapList.add(map2MapWithoutPrefix(map, includeMap, callbackMap, iBeanConvertCallback));
+        }
+        return withoutPrefixMapList;
     }
 
     /**
@@ -367,6 +489,17 @@ public class JoinSqlUtils {
             stringBuilder.append(", ").append(className).append(".").append(columnName).append(" as ").append(className).append("_").append(fieldName);
         }
         return stringBuilder.toString().replaceFirst(", ", "");
+    }
+
+    private static String dateFormat(String date, String format) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+        Date _date = null;
+        try {
+            _date = simpleDateFormat.parse(date);
+        } catch (ParseException var5) {
+            var5.printStackTrace();
+        }
+        return simpleDateFormat.format(_date);
     }
 
     /**

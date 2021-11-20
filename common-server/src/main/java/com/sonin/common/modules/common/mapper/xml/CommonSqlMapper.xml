@@ -6,12 +6,24 @@
         ${sql}
     </select>
 
+    <select id="queryWrapperForMap" resultType="java.util.LinkedHashMap" parameterType="java.lang.String">
+        ${sql} ${ew.customSqlSegment}
+    </select>
+
     <select id="queryForPage" resultType="java.util.LinkedHashMap" parameterType="java.lang.String">
         ${sql}
     </select>
 
+    <select id="queryWrapperForPage" resultType="java.util.LinkedHashMap" parameterType="java.lang.String">
+        ${sql} ${ew.customSqlSegment}
+    </select>
+
     <select id="queryForList" resultType="java.util.LinkedHashMap" parameterType="java.lang.String">
         ${sql}
+    </select>
+
+    <select id="queryWrapperForList" resultType="java.util.LinkedHashMap" parameterType="java.lang.String">
+       ${sql} ${ew.customSqlSegment}
     </select>
 
     <update id="update">
