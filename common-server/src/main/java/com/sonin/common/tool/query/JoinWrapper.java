@@ -3,8 +3,8 @@ package com.sonin.common.tool.query;
 import com.google.common.base.CaseFormat;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -13,40 +13,48 @@ import java.util.stream.Collectors;
  */
 public class JoinWrapper {
 
-    private Set<String> tables;
-    private Set<Class> classes;
-    private Set<String> conditions;
-    private Set<String> includeFields;
-    private Set<String> excludeFields;
+    private Collection<String> tables;
+    private Collection<Class> classes;
+    private Collection<String> conditions;
+    private Collection<String> includeFields;
 
     private JoinWrapper() {
         tables = new LinkedHashSet<>();
         classes = new LinkedHashSet<>();
         conditions = new LinkedHashSet<>();
-        includeFields = new LinkedHashSet<>();
-        excludeFields = new LinkedHashSet<>();
     }
 
-    private Set<String> getTables() {
+    private Collection<String> getTables() {
         return tables;
     }
 
-    private Set<Class> getClasses() {
+    private Collection<Class> getClasses() {
         return classes;
     }
 
-    private Set<String> getConditions() {
+    private Collection<String> getConditions() {
         return conditions;
     }
 
-    private Set<String> getIncludeFields() {
+    private Collection<String> getIncludeFields() {
         return includeFields;
     }
 
-    private Set<String> getExcludeFields() {
-        return excludeFields;
+    private void setTables(Collection<String> tables) {
+        this.tables = tables;
     }
 
+    private void setClasses(Collection<Class> classes) {
+        this.classes = classes;
+    }
+
+    private void setConditions(Collection<String> conditions) {
+        this.conditions = conditions;
+    }
+
+    private void setIncludeFields(Collection<String> includeFields) {
+        this.includeFields = includeFields;
+    }
 
     public static class Builder {
 
@@ -88,26 +96,20 @@ public class JoinWrapper {
         }
 
         public Builder includeFields(Field... fields) {
+            if (joinWrapper.getIncludeFields() == null) {
+                joinWrapper.setIncludeFields(new LinkedHashSet<>());
+            }
             for (Field field : fields) {
                 joinWrapper.getIncludeFields().add(field.getDeclaringClass().getSimpleName() + "_" + field.getName());
             }
             return this;
         }
 
-        public Builder excludeFields(Field... fields) {
-            for (Field field : fields) {
-                joinWrapper.getExcludeFields().add(field.getDeclaringClass().getSimpleName() + "_" + field.getName());
-            }
-            return this;
-        }
-
         public String build() {
-            String sql;
             String allClassName = joinWrapper.getClasses().stream().map(Class::getSimpleName).collect(Collectors.joining("_"));
             String tables = String.join("", joinWrapper.getTables()).replaceFirst(",", "");
             String conditions = String.join("", joinWrapper.getConditions()).replaceFirst(" and", "");
-            sql = "select " + allClassName + ".* from (select " + getColumns() + " from" + tables + " where" + conditions + ") as " + allClassName;
-            return sql;
+            return "select " + allClassName + ".* from (select " + getColumns() + " from" + tables + " where" + conditions + ") as " + allClassName;
         }
 
         private String getColumns() {
@@ -120,12 +122,8 @@ public class JoinWrapper {
                     String classFieldName = field.getName();
                     String tableFieldName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, classFieldName);
                     String alias = className + "_" + classFieldName;
-                    if (!joinWrapper.getIncludeFields().isEmpty()) {
+                    if (joinWrapper.getIncludeFields() != null && !joinWrapper.getIncludeFields().isEmpty()) {
                         if (joinWrapper.getIncludeFields().contains(alias)) {
-                            stringBuilder.append(", ").append(tableName).append(".").append(tableFieldName).append(" as ").append(alias);
-                        }
-                    } else if (!joinWrapper.getExcludeFields().isEmpty()) {
-                        if (!joinWrapper.getExcludeFields().contains(alias)) {
                             stringBuilder.append(", ").append(tableName).append(".").append(tableFieldName).append(" as ").append(alias);
                         }
                     } else {

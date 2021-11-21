@@ -10,6 +10,8 @@ import com.sonin.common.modules.demo.dto.DemoDTO;
 import com.sonin.common.modules.demo.dto.DemoRelationDTO;
 import com.sonin.common.modules.demo.entity.*;
 import com.sonin.common.modules.demo.vo.DemoVO;
+import com.sonin.common.tool.callback.IBeanConvertCallback;
+import com.sonin.common.tool.query.JoinResult;
 import com.sonin.common.tool.query.JoinWrapper;
 import com.sonin.common.tool.util.BeanExtUtils;
 import com.sonin.common.tool.util.JoinSqlUtils;
@@ -119,17 +121,24 @@ public class DemoController {
     public Result<Object> joinWrapperCtrl(@RequestBody DemoDTO demoDTO) throws Exception {
         Result<Object> result = new Result<>();
         String sql = new JoinWrapper.Builder()
-                .includeFields(DemoA.class.getDeclaredField("id"))
-                .includeFields(DemoB.class.getDeclaredField("id"))
-                .excludeFields(DemoA.class.getDeclaredField("id"))
                 .addClass(DemoA.class, DemoB.class, DemoC.class)
                 .addCondition(DemoA.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
                 .addCondition(DemoB.class.getDeclaredField("id"), DemoC.class.getDeclaredField("bId"))
                 .build();
         QueryWrapper<?> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("DemoA_id", "1");
+        // queryWrapper.eq("DemoA_id", "1");
         List<Map<String, Object>> mapList = iCommonSqlService.queryWrapperForList(sql, queryWrapper);
-        result.setResult(mapList);
+//        result.setResult(mapList);
+        List<Map<String, Object>> resList = new JoinResult.Builder()
+                .maps2MapsWithoutPrefix(mapList, (targetFieldName, srcFieldVal) -> {
+                    if ("aName_dictText".equals(targetFieldName)) {
+                        return srcFieldVal + "test123456";
+                    } else if ("bName_dictText".equals(targetFieldName)) {
+                        return srcFieldVal + "test111111";
+                    }
+                    return srcFieldVal;
+                });
+        result.setResult(resList);
         return result;
     }
 
