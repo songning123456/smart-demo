@@ -121,6 +121,7 @@ public class DemoController {
     public Result<Object> joinWrapperCtrl(@RequestBody DemoDTO demoDTO) throws Exception {
         Result<Object> result = new Result<>();
         String sql = new JoinWrapper.Builder()
+                 .select("count(*) as total", "DemoA_id")
                 .addClass(DemoA.class, DemoB.class, DemoC.class)
                 .addCondition(DemoA.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
                 .addCondition(DemoB.class.getDeclaredField("id"), DemoC.class.getDeclaredField("bId"))
