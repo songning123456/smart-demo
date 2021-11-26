@@ -3,57 +3,47 @@ package com.sonin.common.tool.query;
 import com.google.common.base.CaseFormat;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.stream.Collectors;
 
 /**
  * @author sonin
- * @date 2021/11/19 8:27
+ * @date 2021/11/26 8:02
  */
 public class JoinWrapper {
 
-    private Collection<String> tables;
+    private Class from;
     private Collection<Class> classes;
-    private Collection<String> conditions;
-    private Collection<String> includeFields;
+    private Collection<String> joins;
     private Collection<String> selectedColumns;
 
-    private String sql;
-
     private JoinWrapper() {
-        tables = new LinkedHashSet<>();
         classes = new LinkedHashSet<>();
-        conditions = new LinkedHashSet<>();
-        sql = "select ${var0} from (select ${var1} from ${var2} where ${var3}) as ${var4}";
     }
 
-    private Collection<String> getTables() {
-        return tables;
+    private Class getFrom() {
+        return from;
     }
 
     private Collection<Class> getClasses() {
         return classes;
     }
 
-    private Collection<String> getConditions() {
-        return conditions;
-    }
-
-    private Collection<String> getIncludeFields() {
-        return includeFields;
+    private Collection<String> getJoins() {
+        return joins;
     }
 
     private Collection<String> getSelectedColumns() {
         return selectedColumns;
     }
 
-    private String getSql() {
-        return sql;
+    private void setFrom(Class from) {
+        this.from = from;
     }
 
-    private void setIncludeFields(Collection<String> includeFields) {
-        this.includeFields = includeFields;
+    private void setJoins(Collection<String> joins) {
+        this.joins = joins;
     }
 
     private void setSelectedColumns(Collection<String> selectedColumns) {
@@ -64,89 +54,139 @@ public class JoinWrapper {
 
         private final JoinWrapper joinWrapper;
 
-        private String COMMA_SPACE = ", ";
+        private String SELECT = "select";
 
-        private String SPACE_AND_SPACE = " and ";
+        private String AS = "as";
+
+        private String FROM = "from";
+
+        private String INNER_JOIN = "inner join";
+
+        private String LEFT_JOIN = "left join";
+
+        private String RIGHT_JOIN = "right join";
+
+        private String ON = "on";
+
+        private String SPACE = " ";
 
         private String DOT = ".";
 
+        private String EQUAL = "=";
+
         private String UNDERLINE = "_";
 
-        private String SPACE_AS_SPACE = " as ";
-
-        private String SPACE_EQUAL_SPACE = " = ";
-
-        private String DOT_ALL = ".*";
+        private String COMMA = ",";
 
         private String EMPTY = "";
 
         public Builder() {
-            joinWrapper = new JoinWrapper();
+            this.joinWrapper = new JoinWrapper();
         }
 
-        public Builder addClass(Class... classes) {
-            for (Class clazz : classes) {
-                String tableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, clazz.getSimpleName());
-                joinWrapper.getTables().add(COMMA_SPACE + tableName);
-                joinWrapper.getClasses().add(clazz);
-            }
-            return this;
-        }
-
-        public Builder addCondition(Field leftField, Field rightField) {
-            // e.g: DemoA
-            String leftClassName = leftField.getDeclaringClass().getSimpleName();
-            // e.g: demo_a
-            String leftTableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, leftClassName);
-            // e.g: id
-            String leftClassFieldName = leftField.getName();
-            // e.g: id
-            String leftTableFieldName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, leftClassFieldName);
-            // e.g: DemoB
-            String rightClassName = rightField.getDeclaringClass().getSimpleName();
-            // e.g: demo_b
-            String rightTableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, rightClassName);
-            // e.g: aId
-            String rightClassFieldName = rightField.getName();
-            // e.g: a_id
-            String rightTableFieldName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, rightClassFieldName);
-            // e.g: , demo_a.id = demo_b.a_id
-            joinWrapper.getConditions().add(SPACE_AND_SPACE + leftTableName + DOT + leftTableFieldName + SPACE_EQUAL_SPACE + rightTableName + DOT + rightTableFieldName);
-            return this;
-        }
-
-        public Builder includeFields(Field... fields) {
-            if (joinWrapper.getIncludeFields() == null) {
-                joinWrapper.setIncludeFields(new LinkedHashSet<>());
-            }
-            for (Field field : fields) {
-                joinWrapper.getIncludeFields().add(field.getDeclaringClass().getSimpleName() + UNDERLINE + field.getName());
-            }
-            return this;
-        }
-
-        public Builder select(String... columns) {
+        public Builder select(Field... fields) {
             if (joinWrapper.getSelectedColumns() == null) {
                 joinWrapper.setSelectedColumns(new LinkedHashSet<>());
             }
-            for (String column : columns) {
-                joinWrapper.getSelectedColumns().add(COMMA_SPACE + column);
+            for (Field field : fields) {
+                String className = field.getDeclaringClass().getSimpleName();
+                String tableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, className);
+                String fieldName = field.getName();
+                String column = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, fieldName);
+                String alias = tableName + DOT + column + SPACE + AS + SPACE + className + UNDERLINE + fieldName;
+                joinWrapper.getSelectedColumns().add(alias);
             }
+            return this;
+        }
+
+        public Builder select(String... fields) {
+            if (joinWrapper.getSelectedColumns() == null) {
+                joinWrapper.setSelectedColumns(new LinkedHashSet<>());
+            }
+            joinWrapper.getSelectedColumns().addAll(Arrays.asList(fields));
+            return this;
+        }
+
+        public Builder from(Class clazz) {
+            joinWrapper.setFrom(clazz);
+            joinWrapper.getClasses().add(clazz);
+            return this;
+        }
+
+        public Builder innerJoin(Class clazz, Field leftField, Field rightField) {
+            if (joinWrapper.getJoins() == null) {
+                joinWrapper.setJoins(new LinkedHashSet<>());
+            }
+            joinWrapper.getClasses().add(leftField.getDeclaringClass());
+            joinWrapper.getClasses().add(rightField.getDeclaringClass());
+            // e.g: demo_b
+            String fromTableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, clazz.getSimpleName());
+            // e.g: demo_b
+            String leftTableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, leftField.getDeclaringClass().getSimpleName());
+            // e.g: a_id
+            String leftColumn = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, leftField.getName());
+            // e.g: demo_a
+            String rightTableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, rightField.getDeclaringClass().getSimpleName());
+            // e.g: id
+            String rightColumn = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, rightField.getName());
+            // e.g: inner join demo_b on demo_b.a_id = demo_a.id
+            joinWrapper.getJoins().add(INNER_JOIN + SPACE + fromTableName + SPACE + ON + SPACE + leftTableName + DOT + leftColumn + SPACE + EQUAL + SPACE + rightTableName + DOT + rightColumn);
+            return this;
+        }
+
+        public Builder leftJoin(Class clazz, Field leftField, Field rightField) {
+            if (joinWrapper.getJoins() == null) {
+                joinWrapper.setJoins(new LinkedHashSet<>());
+            }
+            joinWrapper.getClasses().add(leftField.getDeclaringClass());
+            joinWrapper.getClasses().add(rightField.getDeclaringClass());
+            // e.g: demo_b
+            String fromTableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, clazz.getSimpleName());
+            // e.g: demo_b
+            String leftTableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, leftField.getDeclaringClass().getSimpleName());
+            // e.g: a_id
+            String leftColumn = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, leftField.getName());
+            // e.g: demo_a
+            String rightTableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, rightField.getDeclaringClass().getSimpleName());
+            // e.g: id
+            String rightColumn = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, rightField.getName());
+            // e.g: left join demo_b on demo_b.a_id = demo_a.id
+            joinWrapper.getJoins().add(LEFT_JOIN + SPACE + fromTableName + SPACE + ON + SPACE + leftTableName + DOT + leftColumn + SPACE + EQUAL + SPACE + rightTableName + DOT + rightColumn);
+            return this;
+        }
+
+        public Builder rightJoin(Class clazz, Field leftField, Field rightField) {
+            if (joinWrapper.getJoins() == null) {
+                joinWrapper.setJoins(new LinkedHashSet<>());
+            }
+            joinWrapper.getClasses().add(leftField.getDeclaringClass());
+            joinWrapper.getClasses().add(rightField.getDeclaringClass());
+            // e.g: demo_b
+            String fromTableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, clazz.getSimpleName());
+            // e.g: demo_b
+            String leftTableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, leftField.getDeclaringClass().getSimpleName());
+            // e.g: a_id
+            String leftColumn = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, leftField.getName());
+            // e.g: demo_a
+            String rightTableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, rightField.getDeclaringClass().getSimpleName());
+            // e.g: id
+            String rightColumn = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, rightField.getName());
+            // e.g: right join demo_b on demo_b.a_id = demo_a.id
+            joinWrapper.getJoins().add(RIGHT_JOIN + SPACE + fromTableName + SPACE + ON + SPACE + leftTableName + DOT + leftColumn + SPACE + EQUAL + SPACE + rightTableName + DOT + rightColumn);
             return this;
         }
 
         public String build() {
-            String allClassName = joinWrapper.getClasses().stream().map(Class::getSimpleName).collect(Collectors.joining(UNDERLINE));
-            String tables = String.join(EMPTY, joinWrapper.getTables()).replaceFirst(COMMA_SPACE, EMPTY);
-            String conditions = String.join(EMPTY, joinWrapper.getConditions()).replaceFirst(SPACE_AND_SPACE, EMPTY);
-            String sql = joinWrapper.getSql();
+            StringBuilder stringBuilder = new StringBuilder(SELECT + SPACE);
             if (joinWrapper.getSelectedColumns() != null && !joinWrapper.getSelectedColumns().isEmpty()) {
-                String selectedColumns = String.join(EMPTY, joinWrapper.getSelectedColumns()).replaceFirst(COMMA_SPACE, EMPTY);
-                sql = sql.replaceFirst("\\$\\{var0}", selectedColumns);
+                String selectedColumns = String.join(COMMA + SPACE, joinWrapper.getSelectedColumns());
+                stringBuilder.append(selectedColumns);
             } else {
-                sql = sql.replaceFirst("\\$\\{var0}", allClassName + DOT_ALL);
+                stringBuilder.append(getColumns());
             }
-            return sql.replaceFirst("\\$\\{var1}", getColumns()).replaceFirst("\\$\\{var2}", tables).replaceFirst("\\$\\{var3}", conditions).replaceFirst("\\$\\{var4}", allClassName);
+            stringBuilder.append(SPACE).append(FROM).append(SPACE).append(CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, joinWrapper.getFrom().getSimpleName()));
+            stringBuilder.append(SPACE).append(String.join(SPACE, joinWrapper.getJoins()));
+            return stringBuilder.toString();
         }
 
         private String getColumns() {
@@ -159,18 +199,11 @@ public class JoinWrapper {
                     String classFieldName = field.getName();
                     String tableFieldName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, classFieldName);
                     String alias = className + UNDERLINE + classFieldName;
-                    if (joinWrapper.getIncludeFields() != null && !joinWrapper.getIncludeFields().isEmpty()) {
-                        if (joinWrapper.getIncludeFields().contains(alias)) {
-                            stringBuilder.append(COMMA_SPACE).append(tableName).append(DOT).append(tableFieldName).append(SPACE_AS_SPACE).append(alias);
-                        }
-                    } else {
-                        stringBuilder.append(COMMA_SPACE).append(tableName).append(DOT).append(tableFieldName).append(SPACE_AS_SPACE).append(alias);
-                    }
+                    stringBuilder.append(COMMA).append(SPACE).append(tableName).append(DOT).append(tableFieldName).append(SPACE).append(AS).append(SPACE).append(alias);
                 }
             }
-            return stringBuilder.toString().replaceFirst(COMMA_SPACE, EMPTY);
+            return stringBuilder.toString().replaceFirst(COMMA + SPACE, EMPTY);
         }
 
     }
-
 }

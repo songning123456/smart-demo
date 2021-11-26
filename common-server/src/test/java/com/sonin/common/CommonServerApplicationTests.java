@@ -7,14 +7,13 @@ import com.sonin.common.modules.demo.entity.DemoA;
 import com.sonin.common.modules.demo.entity.DemoB;
 import com.sonin.common.modules.demo.entity.DemoC;
 import com.sonin.common.modules.demo.entity.DemoD;
-import com.sonin.common.tool.query.JoinWrapper;
+import com.sonin.common.tool.query.WhereWrapper;
 import com.sonin.common.tool.util.JoinSqlUtils;
 import javassist.*;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import javax.annotation.Resource;
 import java.lang.reflect.Method;
 
 /**
@@ -79,7 +78,7 @@ public class CommonServerApplicationTests {
 
     @Test
     public void testJoinWrapper() throws Exception {
-        String sql = new JoinWrapper.Builder()
+        String sql = new WhereWrapper.Builder()
                 .addClass(DemoA.class, DemoB.class, DemoC.class)
                 .addCondition(DemoA.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
                 .addCondition(DemoB.class.getDeclaredField("id"), DemoC.class.getDeclaredField("bId"))
