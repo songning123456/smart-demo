@@ -124,10 +124,10 @@ public class DemoController {
 //                .select(DemoA.class.getDeclaredField("id"),
 //                        DemoB.class.getDeclaredField("id"),
 //                        DemoC.class.getDeclaredField("id"))
-                .select("count(*) as total")
+//                .select("count(*) as total")
                 .from(DemoA.class)
-                .innerJoin(DemoB.class, DemoB.class.getDeclaredField("aId"), DemoA.class.getDeclaredField("id"))
-                .innerJoin(DemoC.class, DemoC.class.getDeclaredField("bId"), DemoB.class.getDeclaredField("id"))
+                // .innerJoin(DemoB.class, DemoB.class.getDeclaredField("aId"), DemoA.class.getDeclaredField("id"))
+                // .innerJoin(DemoC.class, DemoC.class.getDeclaredField("bId"), DemoB.class.getDeclaredField("id"))
                 .build();
 //        String sql = new WhereWrapper.Builder()
 //                 .select("count(*) as total", "DemoA_id")

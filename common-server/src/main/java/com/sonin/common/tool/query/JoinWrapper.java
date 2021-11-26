@@ -185,7 +185,9 @@ public class JoinWrapper {
                 stringBuilder.append(getColumns());
             }
             stringBuilder.append(SPACE).append(FROM).append(SPACE).append(CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, joinWrapper.getFrom().getSimpleName()));
-            stringBuilder.append(SPACE).append(String.join(SPACE, joinWrapper.getJoins()));
+            if (joinWrapper.getJoins() != null && !joinWrapper.getJoins().isEmpty()) {
+                stringBuilder.append(SPACE).append(String.join(SPACE, joinWrapper.getJoins()));
+            }
             return stringBuilder.toString();
         }
 
