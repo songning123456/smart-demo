@@ -7,15 +7,18 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
+import static com.sonin.common.tool.query.SqlConstant.*;
+
 /**
  * @author sonin
  * @date 2021/11/26 8:02
+ * QueryWrapper条件e.g: demo_b.b_name = xxx
  */
 public class JoinWrapper {
 
     private Class from;
     private Collection<Class> classes;
-    private Collection<String> joins;
+    private Collection<String> conditions;
     private Collection<String> selectedColumns;
 
     private JoinWrapper() {
@@ -30,8 +33,8 @@ public class JoinWrapper {
         return classes;
     }
 
-    private Collection<String> getJoins() {
-        return joins;
+    private Collection<String> getConditions() {
+        return conditions;
     }
 
     private Collection<String> getSelectedColumns() {
@@ -42,8 +45,8 @@ public class JoinWrapper {
         this.from = from;
     }
 
-    private void setJoins(Collection<String> joins) {
-        this.joins = joins;
+    private void setConditions(Collection<String> conditions) {
+        this.conditions = conditions;
     }
 
     private void setSelectedColumns(Collection<String> selectedColumns) {
@@ -53,32 +56,6 @@ public class JoinWrapper {
     public static class Builder {
 
         private final JoinWrapper joinWrapper;
-
-        private String SELECT = "select";
-
-        private String AS = "as";
-
-        private String FROM = "from";
-
-        private String INNER_JOIN = "inner join";
-
-        private String LEFT_JOIN = "left join";
-
-        private String RIGHT_JOIN = "right join";
-
-        private String ON = "on";
-
-        private String SPACE = " ";
-
-        private String DOT = ".";
-
-        private String EQUAL = "=";
-
-        private String UNDERLINE = "_";
-
-        private String COMMA = ",";
-
-        private String EMPTY = "";
 
         public Builder() {
             this.joinWrapper = new JoinWrapper();
@@ -114,8 +91,8 @@ public class JoinWrapper {
         }
 
         public Builder innerJoin(Class clazz, Field leftField, Field rightField) {
-            if (joinWrapper.getJoins() == null) {
-                joinWrapper.setJoins(new LinkedHashSet<>());
+            if (joinWrapper.getConditions() == null) {
+                joinWrapper.setConditions(new LinkedHashSet<>());
             }
             joinWrapper.getClasses().add(leftField.getDeclaringClass());
             joinWrapper.getClasses().add(rightField.getDeclaringClass());
@@ -130,13 +107,13 @@ public class JoinWrapper {
             // e.g: id
             String rightColumn = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, rightField.getName());
             // e.g: inner join demo_b on demo_b.a_id = demo_a.id
-            joinWrapper.getJoins().add(INNER_JOIN + SPACE + fromTableName + SPACE + ON + SPACE + leftTableName + DOT + leftColumn + SPACE + EQUAL + SPACE + rightTableName + DOT + rightColumn);
+            joinWrapper.getConditions().add(INNER_JOIN + SPACE + fromTableName + SPACE + ON + SPACE + leftTableName + DOT + leftColumn + SPACE + EQUAL + SPACE + rightTableName + DOT + rightColumn);
             return this;
         }
 
         public Builder leftJoin(Class clazz, Field leftField, Field rightField) {
-            if (joinWrapper.getJoins() == null) {
-                joinWrapper.setJoins(new LinkedHashSet<>());
+            if (joinWrapper.getConditions() == null) {
+                joinWrapper.setConditions(new LinkedHashSet<>());
             }
             joinWrapper.getClasses().add(leftField.getDeclaringClass());
             joinWrapper.getClasses().add(rightField.getDeclaringClass());
@@ -151,13 +128,13 @@ public class JoinWrapper {
             // e.g: id
             String rightColumn = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, rightField.getName());
             // e.g: left join demo_b on demo_b.a_id = demo_a.id
-            joinWrapper.getJoins().add(LEFT_JOIN + SPACE + fromTableName + SPACE + ON + SPACE + leftTableName + DOT + leftColumn + SPACE + EQUAL + SPACE + rightTableName + DOT + rightColumn);
+            joinWrapper.getConditions().add(LEFT_JOIN + SPACE + fromTableName + SPACE + ON + SPACE + leftTableName + DOT + leftColumn + SPACE + EQUAL + SPACE + rightTableName + DOT + rightColumn);
             return this;
         }
 
         public Builder rightJoin(Class clazz, Field leftField, Field rightField) {
-            if (joinWrapper.getJoins() == null) {
-                joinWrapper.setJoins(new LinkedHashSet<>());
+            if (joinWrapper.getConditions() == null) {
+                joinWrapper.setConditions(new LinkedHashSet<>());
             }
             joinWrapper.getClasses().add(leftField.getDeclaringClass());
             joinWrapper.getClasses().add(rightField.getDeclaringClass());
@@ -172,7 +149,7 @@ public class JoinWrapper {
             // e.g: id
             String rightColumn = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, rightField.getName());
             // e.g: right join demo_b on demo_b.a_id = demo_a.id
-            joinWrapper.getJoins().add(RIGHT_JOIN + SPACE + fromTableName + SPACE + ON + SPACE + leftTableName + DOT + leftColumn + SPACE + EQUAL + SPACE + rightTableName + DOT + rightColumn);
+            joinWrapper.getConditions().add(RIGHT_JOIN + SPACE + fromTableName + SPACE + ON + SPACE + leftTableName + DOT + leftColumn + SPACE + EQUAL + SPACE + rightTableName + DOT + rightColumn);
             return this;
         }
 
@@ -185,8 +162,8 @@ public class JoinWrapper {
                 stringBuilder.append(getColumns());
             }
             stringBuilder.append(SPACE).append(FROM).append(SPACE).append(CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, joinWrapper.getFrom().getSimpleName()));
-            if (joinWrapper.getJoins() != null && !joinWrapper.getJoins().isEmpty()) {
-                stringBuilder.append(SPACE).append(String.join(SPACE, joinWrapper.getJoins()));
+            if (joinWrapper.getConditions() != null && !joinWrapper.getConditions().isEmpty()) {
+                stringBuilder.append(SPACE).append(String.join(SPACE, joinWrapper.getConditions()));
             }
             return stringBuilder.toString();
         }

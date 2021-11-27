@@ -7,7 +7,6 @@ import com.sonin.common.modules.demo.entity.DemoA;
 import com.sonin.common.modules.demo.entity.DemoB;
 import com.sonin.common.modules.demo.entity.DemoC;
 import com.sonin.common.modules.demo.entity.DemoD;
-import com.sonin.common.tool.query.WhereWrapper;
 import com.sonin.common.tool.util.JoinSqlUtils;
 import javassist.*;
 import org.junit.Test;
@@ -74,16 +73,6 @@ public class CommonServerApplicationTests {
         queryWrapper.eq("id", "111");
         int res = commonSqlMapper.deleteWrapper("delete from demo_a", queryWrapper);
         System.out.println("");
-    }
-
-    @Test
-    public void testJoinWrapper() throws Exception {
-        String sql = new WhereWrapper.Builder()
-                .addClass(DemoA.class, DemoB.class, DemoC.class)
-                .addCondition(DemoA.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
-                .addCondition(DemoB.class.getDeclaredField("id"), DemoC.class.getDeclaredField("bId"))
-                .build();
-        System.out.println(sql);
     }
 
 }

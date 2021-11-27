@@ -7,6 +7,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.sonin.common.tool.query.SqlConstant.*;
+
 /**
  * @author sonin
  * @date 2021/11/21 8:50
@@ -15,7 +17,7 @@ public class JoinResult {
 
     private Map<String, String> callbackMap;
 
-    private Collection<String> includeFields;
+    private Collection<String> selectedColumns;
 
     private JoinResult() {
     }
@@ -24,16 +26,16 @@ public class JoinResult {
         return callbackMap;
     }
 
-    private Collection<String> getIncludeFields() {
-        return includeFields;
+    private Collection<String> getSelectedColumns() {
+        return selectedColumns;
     }
 
     private void setCallbackMap(Map<String, String> callbackMap) {
         this.callbackMap = callbackMap;
     }
 
-    private void setIncludeFields(Collection<String> includeFields) {
-        this.includeFields = includeFields;
+    private void setSelectedColumns(Collection<String> selectedColumns) {
+        this.selectedColumns = selectedColumns;
     }
 
     public static class Builder {
@@ -44,12 +46,12 @@ public class JoinResult {
             joinResult = new JoinResult();
         }
 
-        public Builder includeFields(Field... fields) {
-            if (joinResult.getIncludeFields() == null) {
-                joinResult.setIncludeFields(new LinkedHashSet<>());
+        public Builder select(Field... fields) {
+            if (joinResult.getSelectedColumns() == null) {
+                joinResult.setSelectedColumns(new LinkedHashSet<>());
             }
             for (Field field : fields) {
-                joinResult.getIncludeFields().add(field.getDeclaringClass().getSimpleName() + "_" + field.getName());
+                joinResult.getSelectedColumns().add(field.getDeclaringClass().getSimpleName() + UNDERLINE + field.getName());
             }
             return this;
         }
@@ -62,7 +64,7 @@ public class JoinResult {
             String srcFieldName = srcField.getName();
             String targetClassName = targetField.getDeclaringClass().getSimpleName();
             String targetFieldName = targetField.getName();
-            joinResult.getCallbackMap().put(srcClassName + "_" + srcFieldName, targetClassName + "_" + targetFieldName);
+            joinResult.getCallbackMap().put(srcClassName + UNDERLINE + srcFieldName, targetClassName + UNDERLINE + targetFieldName);
             return this;
         }
 
@@ -72,7 +74,7 @@ public class JoinResult {
             }
             String srcClassName = srcField.getDeclaringClass().getSimpleName();
             String srcFieldName = srcField.getName();
-            joinResult.getCallbackMap().put(srcClassName + "_" + srcFieldName, targetField);
+            joinResult.getCallbackMap().put(srcClassName + UNDERLINE + srcFieldName, targetField);
             return this;
         }
 
@@ -86,12 +88,12 @@ public class JoinResult {
             Map<String, Object> targetMap = new LinkedHashMap<>(2);
             for (Map.Entry<String, Object> item : srcMap.entrySet()) {
                 String srcFieldName = item.getKey();
-                if (joinResult.getIncludeFields() != null && !joinResult.getIncludeFields().contains(srcFieldName)) {
+                if (joinResult.getSelectedColumns() != null && !joinResult.getSelectedColumns().contains(srcFieldName)) {
                     continue;
                 }
                 Object srcFieldVal = item.getValue();
                 if (srcFieldVal instanceof Date) {
-                    srcFieldVal = dateFormat("" + srcFieldVal, "yyyy-MM-dd HH:mm:ss");
+                    srcFieldVal = dateFormat(EMPTY + srcFieldVal, "yyyy-MM-dd HH:mm:ss");
                 }
                 targetMap.put(splitByLowerUnderscore(srcFieldName), srcFieldVal);
             }
@@ -109,12 +111,12 @@ public class JoinResult {
             Map<String, Object> targetMap = new LinkedHashMap<>(2);
             for (Map.Entry<String, Object> item : srcMap.entrySet()) {
                 String srcFieldName = item.getKey();
-                if (joinResult.getIncludeFields() != null && !joinResult.getIncludeFields().contains(srcFieldName)) {
+                if (joinResult.getSelectedColumns() != null && !joinResult.getSelectedColumns().contains(srcFieldName)) {
                     continue;
                 }
                 Object srcFieldVal = item.getValue();
                 if (srcFieldVal instanceof Date) {
-                    srcFieldVal = dateFormat("" + srcFieldVal, "yyyy-MM-dd HH:mm:ss");
+                    srcFieldVal = dateFormat(EMPTY + srcFieldVal, "yyyy-MM-dd HH:mm:ss");
                 }
                 targetMap.put(splitByLowerUnderscore(srcFieldName), srcFieldVal);
                 if (joinResult.getCallbackMap() != null && joinResult.getCallbackMap().get(srcFieldName) != null) {
@@ -162,13 +164,13 @@ public class JoinResult {
          */
         private String splitByLowerUnderscore(String srcFieldName) {
             StringBuilder stringBuilder = new StringBuilder();
-            String[] srcFieldNames = srcFieldName.split("_");
+            String[] srcFieldNames = srcFieldName.split(UNDERLINE);
             int i = srcFieldNames.length > 1 ? 1 : 0;
             while (i < srcFieldNames.length) {
-                stringBuilder.append("_").append(srcFieldNames[i]);
+                stringBuilder.append(UNDERLINE).append(srcFieldNames[i]);
                 i++;
             }
-            return stringBuilder.toString().replaceFirst("_", "");
+            return stringBuilder.toString().replaceFirst(UNDERLINE, EMPTY);
         }
 
         /**

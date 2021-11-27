@@ -121,23 +121,26 @@ public class DemoController {
     public Result<Object> joinWrapperCtrl(@RequestBody DemoDTO demoDTO) throws Exception {
         Result<Object> result = new Result<>();
         String sql = new JoinWrapper.Builder()
+                .select(DemoA.class.getDeclaredField("id"),
+                        DemoB.class.getDeclaredField("id"),
+                        DemoC.class.getDeclaredField("id"))
+                .select("count(*) as total")
+                .from(DemoA.class)
+                .innerJoin(DemoB.class, DemoB.class.getDeclaredField("aId"), DemoA.class.getDeclaredField("id"))
+                .innerJoin(DemoC.class, DemoC.class.getDeclaredField("bId"), DemoB.class.getDeclaredField("id"))
+                .build();
+//        String sql = new WhereWrapper.Builder()
+//                 .select("count(*) as total", "demo_a.id")
 //                .select(DemoA.class.getDeclaredField("id"),
 //                        DemoB.class.getDeclaredField("id"),
 //                        DemoC.class.getDeclaredField("id"))
-//                .select("count(*) as total")
-                .from(DemoA.class)
-                // .innerJoin(DemoB.class, DemoB.class.getDeclaredField("aId"), DemoA.class.getDeclaredField("id"))
-                // .innerJoin(DemoC.class, DemoC.class.getDeclaredField("bId"), DemoB.class.getDeclaredField("id"))
-                .build();
-//        String sql = new WhereWrapper.Builder()
-//                 .select("count(*) as total", "DemoA_id")
-//                .addClass(DemoA.class, DemoB.class, DemoC.class)
-//                .addCondition(DemoA.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
-//                .addCondition(DemoB.class.getDeclaredField("id"), DemoC.class.getDeclaredField("bId"))
+//                .from(DemoA.class, DemoB.class, DemoC.class)
+        // .and(DemoA.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
+//                 .and(DemoB.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
 //                .build();
         QueryWrapper<?> queryWrapper = new QueryWrapper<>();
 //         queryWrapper.eq("DemoA_id", "1");
-        queryWrapper.eq("demo_a.id", "1");
+//        queryWrapper.eq("demo_a.id", "1");
         List<Map<String, Object>> mapList = iCommonSqlService.queryWrapperForList(sql, queryWrapper);
 //        result.setResult(mapList);
         List<Map<String, Object>> resList = new JoinResult.Builder()
