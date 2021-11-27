@@ -79,7 +79,49 @@ public class JoinResult {
         }
 
         /**
-         * src Map => target Map
+         * src Map => target Map (前缀 + 回调)
+         *
+         * @param srcMap
+         * @param iBeanConvertCallback
+         * @return
+         */
+        public Map<String, Object> map2MapWithPrefix(Map<String, Object> srcMap, IBeanConvertCallback iBeanConvertCallback) {
+            Map<String, Object> targetMap = new LinkedHashMap<>(2);
+            for (Map.Entry<String, Object> item : srcMap.entrySet()) {
+                String srcFieldName = item.getKey();
+                if (joinResult.getSelectedColumns() != null && !joinResult.getSelectedColumns().contains(srcFieldName)) {
+                    continue;
+                }
+                Object srcFieldVal = item.getValue();
+                if (srcFieldVal instanceof Date) {
+                    srcFieldVal = dateFormat(EMPTY + srcFieldVal, "yyyy-MM-dd HH:mm:ss");
+                }
+                targetMap.put(srcFieldName, srcFieldVal);
+                if (joinResult.getCallbackMap() != null && joinResult.getCallbackMap().get(srcFieldName) != null) {
+                    Object callbackFieldVal = iBeanConvertCallback.doBeanConvert(joinResult.getCallbackMap().get(srcFieldName), srcFieldVal);
+                    targetMap.put(joinResult.getCallbackMap().get(srcFieldName), callbackFieldVal);
+                }
+            }
+            return targetMap;
+        }
+
+        /**
+         * src Maps => target Maps (前缀 + 回调)
+         *
+         * @param srcMapList
+         * @param iBeanConvertCallback
+         * @return
+         */
+        public List<Map<String, Object>> maps2MapsWithPrefix(List<Map<String, Object>> srcMapList, IBeanConvertCallback iBeanConvertCallback) {
+            List<Map<String, Object>> targetMapList = new ArrayList<>();
+            for (Map<String, Object> srcMap : srcMapList) {
+                targetMapList.add(map2MapWithPrefix(srcMap, iBeanConvertCallback));
+            }
+            return targetMapList;
+        }
+
+        /**
+         * src Map => target Map (无前缀 + 无回调)
          *
          * @param srcMap
          * @return
@@ -101,7 +143,21 @@ public class JoinResult {
         }
 
         /**
-         * src Map => target Map (回调)
+         * src Maps => target Maps (无前缀 + 无回调)
+         *
+         * @param srcMapList
+         * @return
+         */
+        public List<Map<String, Object>> maps2MapsWithoutPrefix(List<Map<String, Object>> srcMapList) {
+            List<Map<String, Object>> targetMapList = new ArrayList<>();
+            for (Map<String, Object> srcMap : srcMapList) {
+                targetMapList.add(map2MapWithoutPrefix(srcMap));
+            }
+            return targetMapList;
+        }
+
+        /**
+         * src Map => target Map (无前缀 + 回调)
          *
          * @param srcMap
          * @param iBeanConvertCallback
@@ -128,21 +184,7 @@ public class JoinResult {
         }
 
         /**
-         * src Maps => target Maps
-         *
-         * @param srcMapList
-         * @return
-         */
-        public List<Map<String, Object>> maps2MapsWithoutPrefix(List<Map<String, Object>> srcMapList) {
-            List<Map<String, Object>> targetMapList = new ArrayList<>();
-            for (Map<String, Object> srcMap : srcMapList) {
-                targetMapList.add(map2MapWithoutPrefix(srcMap));
-            }
-            return targetMapList;
-        }
-
-        /**
-         * src Maps => target Maps (回调)
+         * src Maps => target Maps (无前缀 + 回调)
          *
          * @param srcMapList
          * @param iBeanConvertCallback
