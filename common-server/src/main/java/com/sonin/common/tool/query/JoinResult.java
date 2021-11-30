@@ -7,13 +7,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.sonin.common.tool.query.SqlConstant.*;
-
 /**
  * @author sonin
  * @date 2021/11/21 8:50
  */
-public class JoinResult {
+public class JoinResult implements Wrapper {
 
     private Map<String, String> callbackMap;
 

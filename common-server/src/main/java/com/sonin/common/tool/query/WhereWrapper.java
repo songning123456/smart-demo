@@ -8,14 +8,12 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 
-import static com.sonin.common.tool.query.SqlConstant.*;
-
 /**
  * @author sonin
  * @date 2021/11/26 19:35
  * QueryWrapper条件e.g: DemoB_bName = xxx
  */
-public class WhereWrapper {
+public class WhereWrapper implements Wrapper {
 
     private Collection<Class> classes;
     private Collection<String> conditions;

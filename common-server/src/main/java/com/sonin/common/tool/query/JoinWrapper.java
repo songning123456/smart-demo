@@ -7,14 +7,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-import static com.sonin.common.tool.query.SqlConstant.*;
-
 /**
  * @author sonin
  * @date 2021/11/26 8:02
  * QueryWrapper条件e.g: demo_b.b_name = xxx
  */
-public class JoinWrapper {
+public class JoinWrapper implements Wrapper {
 
     private Class from;
     private Collection<Class> classes;
