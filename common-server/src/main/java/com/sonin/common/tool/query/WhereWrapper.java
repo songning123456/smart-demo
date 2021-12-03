@@ -1,11 +1,13 @@
 package com.sonin.common.tool.query;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.base.CaseFormat;
+import com.sonin.common.modules.common.service.ICommonSqlService;
+import com.sonin.common.tool.util.SpringContextUtils;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -18,6 +20,8 @@ public class WhereWrapper implements Wrapper {
     private Collection<Class> classes;
     private Collection<String> conditions;
     private Collection<String> selectedColumns;
+    private String prefixSql;
+    private QueryWrapper<?> queryWrapper;
 
     private WhereWrapper() {
         classes = new LinkedHashSet<>();
@@ -31,16 +35,32 @@ public class WhereWrapper implements Wrapper {
         return conditions;
     }
 
-    private void setConditions(Collection<String> conditions) {
-        this.conditions = conditions;
-    }
-
     private Collection<String> getSelectedColumns() {
         return selectedColumns;
     }
 
+    private String getPrefixSql() {
+        return prefixSql;
+    }
+
+    private QueryWrapper<?> getQueryWrapper() {
+        return queryWrapper;
+    }
+
+    private void setConditions(Collection<String> conditions) {
+        this.conditions = conditions;
+    }
+
     private void setSelectedColumns(Collection<String> selectedColumns) {
         this.selectedColumns = selectedColumns;
+    }
+
+    private void setPrefixSql(String prefixSql) {
+        this.prefixSql = prefixSql;
+    }
+
+    private void setQueryWrapper(QueryWrapper<?> queryWrapper) {
+        this.queryWrapper = queryWrapper;
     }
 
     public static class Builder {
@@ -122,6 +142,166 @@ public class WhereWrapper implements Wrapper {
                 sql = sql.replaceFirst(SPACE + WHERE + SPACE + "\\$\\{var3}", EMPTY);
             }
             return sql.replaceFirst("\\$\\{var4}", allClassName);
+        }
+
+        public Builder where() {
+            whereWrapper.setPrefixSql(build());
+            whereWrapper.setQueryWrapper(new QueryWrapper<>());
+            return this;
+        }
+
+        public Builder eq(boolean condition, String column, Object val) {
+            whereWrapper.getQueryWrapper().eq(condition, column, val);
+            return this;
+        }
+
+        public Builder ne(boolean condition, String column, Object val) {
+            whereWrapper.getQueryWrapper().ne(condition, column, val);
+            return this;
+        }
+
+        public Builder gt(boolean condition, String column, Object val) {
+            whereWrapper.getQueryWrapper().gt(condition, column, val);
+            return this;
+        }
+
+        public Builder ge(boolean condition, String column, Object val) {
+            whereWrapper.getQueryWrapper().ge(condition, column, val);
+            return this;
+        }
+
+        public Builder lt(boolean condition, String column, Object val) {
+            whereWrapper.getQueryWrapper().lt(condition, column, val);
+            return this;
+        }
+
+        public Builder le(boolean condition, String column, Object val) {
+            whereWrapper.getQueryWrapper().le(condition, column, val);
+            return this;
+        }
+
+        public Builder between(boolean condition, String column, Object val1, Object val2) {
+            whereWrapper.getQueryWrapper().between(condition, column, val1, val2);
+            return this;
+        }
+
+        public Builder notBetween(boolean condition, String column, Object val1, Object val2) {
+            whereWrapper.getQueryWrapper().notBetween(condition, column, val1, val2);
+            return this;
+        }
+
+        public Builder like(boolean condition, String column, Object val) {
+            whereWrapper.getQueryWrapper().like(condition, column, val);
+            return this;
+        }
+
+        public Builder notLike(boolean condition, String column, Object val) {
+            whereWrapper.getQueryWrapper().notLike(condition, column, val);
+            return this;
+        }
+
+        public Builder likeLeft(boolean condition, String column, Object val) {
+            whereWrapper.getQueryWrapper().likeLeft(condition, column, val);
+            return this;
+        }
+
+        public Builder likeRight(boolean condition, String column, Object val) {
+            whereWrapper.getQueryWrapper().likeRight(condition, column, val);
+            return this;
+        }
+
+        public Builder isNull(boolean condition, String column) {
+            whereWrapper.getQueryWrapper().isNull(condition, column);
+            return this;
+        }
+
+        public Builder isNotNull(boolean condition, String column) {
+            whereWrapper.getQueryWrapper().isNotNull(condition, column);
+            return this;
+        }
+
+        public Builder in(boolean condition, String column, Collection<?> coll) {
+            whereWrapper.getQueryWrapper().in(condition, column, coll);
+            return this;
+        }
+
+        public Builder notIn(boolean condition, String column, Collection<?> coll) {
+            whereWrapper.getQueryWrapper().notIn(condition, column, coll);
+            return this;
+        }
+
+        public Builder inSql(boolean condition, String column, String inValue) {
+            whereWrapper.getQueryWrapper().inSql(condition, column, inValue);
+            return this;
+        }
+
+        public Builder notInSql(boolean condition, String column, String inValue) {
+            whereWrapper.getQueryWrapper().notInSql(condition, column, inValue);
+            return this;
+        }
+
+        public Builder groupBy(boolean condition, String... columns) {
+            whereWrapper.getQueryWrapper().groupBy(condition, columns);
+            return this;
+        }
+
+        public Builder having(boolean condition, String sqlHaving, Object... params) {
+            whereWrapper.getQueryWrapper().having(condition, sqlHaving, params);
+            return this;
+        }
+
+        public Builder or(boolean condition) {
+            whereWrapper.getQueryWrapper().or(condition);
+            return this;
+        }
+
+        public Builder apply(boolean condition, String applySql, Object... value) {
+            whereWrapper.getQueryWrapper().apply(condition, applySql, value);
+            return this;
+        }
+
+        public Builder last(boolean condition, String lastSql) {
+            whereWrapper.getQueryWrapper().last(condition, lastSql);
+            return this;
+        }
+
+        public Builder comment(boolean condition, String comment) {
+            whereWrapper.getQueryWrapper().comment(condition, comment);
+            return this;
+        }
+
+        public Builder exists(boolean condition, String existsSql) {
+            whereWrapper.getQueryWrapper().exists(condition, existsSql);
+            return this;
+        }
+
+        public Builder notExists(boolean condition, String notExistsSql) {
+            whereWrapper.getQueryWrapper().notExists(condition, notExistsSql);
+            return this;
+        }
+
+        public Map<String, Object> queryWrapperForMap() {
+            if (whereWrapper.getQueryWrapper() == null) {
+                whereWrapper.setQueryWrapper(new QueryWrapper<>());
+            }
+            ICommonSqlService commonSqlService = SpringContextUtils.getBean(ICommonSqlService.class);
+            return commonSqlService.queryWrapperForMap(whereWrapper.getPrefixSql(), whereWrapper.getQueryWrapper());
+        }
+
+        public Page<Map<String, Object>> queryWrapperForPage(Page<?> page) {
+            if (whereWrapper.getQueryWrapper() == null) {
+                whereWrapper.setQueryWrapper(new QueryWrapper<>());
+            }
+            ICommonSqlService commonSqlService = SpringContextUtils.getBean(ICommonSqlService.class);
+            return commonSqlService.queryWrapperForPage(page, whereWrapper.getPrefixSql(), whereWrapper.getQueryWrapper());
+        }
+
+        public List<Map<String, Object>> queryWrapperForList() {
+            if (whereWrapper.getQueryWrapper() == null) {
+                whereWrapper.setQueryWrapper(new QueryWrapper<>());
+            }
+            ICommonSqlService commonSqlService = SpringContextUtils.getBean(ICommonSqlService.class);
+            return commonSqlService.queryWrapperForList(whereWrapper.getPrefixSql(), whereWrapper.getQueryWrapper());
         }
 
         private String getColumns() {
