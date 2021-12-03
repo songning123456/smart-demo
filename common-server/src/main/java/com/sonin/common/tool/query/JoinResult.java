@@ -3,6 +3,7 @@ package com.sonin.common.tool.query;
 import com.sonin.common.tool.callback.IBeanConvertCallback;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -73,6 +74,14 @@ public class JoinResult implements Wrapper {
             String srcClassName = srcField.getDeclaringClass().getSimpleName();
             String srcFieldName = srcField.getName();
             joinResult.getCallbackMap().put(srcClassName + UNDERLINE + srcFieldName, targetField);
+            return this;
+        }
+
+        public Builder addCallback(String srcField, String targetField) {
+            if (joinResult.getCallbackMap() == null) {
+                joinResult.setCallbackMap(new LinkedHashMap<>());
+            }
+            joinResult.getCallbackMap().put(srcField, targetField);
             return this;
         }
 
@@ -197,6 +206,100 @@ public class JoinResult implements Wrapper {
         }
 
         /**
+         * Maps => Beans
+         *
+         * @param mapList
+         * @param targetClass
+         * @param <T>
+         * @return
+         */
+        public <T> List<T> maps2Beans(List<Map<String, Object>> mapList, Class<T> targetClass) throws Exception {
+            // 判空
+            if (mapList == null || targetClass == null) {
+                return null;
+            }
+            // 判空
+            if (mapList.isEmpty()) {
+                return new ArrayList<>();
+            }
+            // 构建对象集合
+            List<T> targetList = new ArrayList<>();
+            // fieldName:method 缓存
+            Map<String, Method> methodMap = new HashMap<>();
+            // 遍历存储
+            for (Map<String, Object> map : mapList) {
+                T target = targetClass.newInstance();
+                if (methodMap.isEmpty()) {
+                    Method[] methods = targetClass.getMethods();
+                    for (Method method : methods) {
+                        if (method.getName().startsWith("set")) {
+                            // 截取属性名
+                            String fieldName = method.getName();
+                            fieldName = fieldName.toLowerCase().charAt(3) + fieldName.substring(4);
+                            if (map.containsKey(fieldName)) {
+                                method.invoke(target, map.get(fieldName));
+                                methodMap.put(fieldName, method);
+                            }
+                        }
+                    }
+                } else {
+                    for (Map.Entry<String, Method> item : methodMap.entrySet()) {
+                        String fieldName = item.getKey();
+                        Method method = item.getValue();
+                        method.invoke(target, map.get(fieldName));
+                    }
+                }
+                targetList.add(target);
+            }
+            // 清理缓存
+            methodMap.clear();
+            return targetList;
+        }
+
+        /**
+         * Maps => Beans (回调)
+         *
+         * @param mapList
+         * @param targetClass
+         * @param <T>
+         * @return
+         */
+        public <T> List<T> maps2Beans(List<Map<String, Object>> mapList, Class<T> targetClass, IBeanConvertCallback iBeanConvertCallback) throws Exception {
+            // 判空
+            if (mapList == null || targetClass == null) {
+                return null;
+            }
+            // 判空
+            if (mapList.isEmpty()) {
+                return new ArrayList<>();
+            }
+            // 构建对象集合
+            List<T> targetList = new ArrayList<>();
+            // 遍历存储
+            for (Map<String, Object> map : mapList) {
+                T target = targetClass.newInstance();
+                Method[] methods = targetClass.getMethods();
+                for (Method method : methods) {
+                    if (method.getName().startsWith("set")) {
+                        // 截取属性名
+                        String fieldName = method.getName();
+                        fieldName = fieldName.toLowerCase().charAt(3) + fieldName.substring(4);
+                        if (map.containsKey(fieldName)) {
+                            method.invoke(target, map.get(fieldName));
+                        }
+                        // 补充回调
+                        if (joinResult.getCallbackMap() != null && joinResult.getCallbackMap().containsValue(fieldName)) {
+                            Object callbackFieldVal = iBeanConvertCallback.doBeanConvert(fieldName, map.get(getValByKey(joinResult.getCallbackMap(), fieldName)));
+                            method.invoke(target, callbackFieldVal);
+                        }
+                    }
+                }
+                targetList.add(target);
+            }
+            return targetList;
+        }
+
+        /**
          * e.g: DemoA_aName => aName
          *
          * @param srcFieldName
@@ -229,6 +332,17 @@ public class JoinResult implements Wrapper {
                 var5.printStackTrace();
             }
             return simpleDateFormat.format(_date);
+        }
+
+        private String getValByKey(Map<String, String> map, String val) {
+            String key = "";
+            for (Map.Entry<String, String> item : map.entrySet()) {
+                if (val.equals(item.getValue())) {
+                    key = item.getKey();
+                    break;
+                }
+            }
+            return key;
         }
 
     }
