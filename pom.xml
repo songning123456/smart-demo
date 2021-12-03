@@ -27,7 +27,6 @@
         <module>dubbo-consumer</module>
         <module>sentinel-server</module>
         <module>leetcode-api</module>
-        <module>ssmframework-api</module>
         <module>common-server</module>
     </modules>
 
