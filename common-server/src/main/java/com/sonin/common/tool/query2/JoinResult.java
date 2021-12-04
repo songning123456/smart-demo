@@ -1,4 +1,4 @@
-package com.sonin.common.tool.query;
+package com.sonin.common.tool.query2;
 
 import com.sonin.common.tool.callback.IBeanConvertCallback;
 
