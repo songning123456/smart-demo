@@ -153,6 +153,13 @@ public class DemoController {
                     return srcFieldVal;
                 });
         result.setResult(resList);
+        List<Map<String, Object>> mapList1 = new JoinWrapper.Builder()
+                .from(DemoA.class)
+                .innerJoin(DemoB.class, DemoB.class.getDeclaredField("aId"), DemoA.class.getDeclaredField("id"))
+                .where()
+                .eq(true, "demo_a.id", 1)
+                .last(true, "limit 1")
+                .queryWrapperForList();
         return result;
     }
 

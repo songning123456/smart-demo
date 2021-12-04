@@ -281,25 +281,16 @@ public class WhereWrapper implements Wrapper {
         }
 
         public Map<String, Object> queryWrapperForMap() {
-            if (whereWrapper.getQueryWrapper() == null) {
-                whereWrapper.setQueryWrapper(new QueryWrapper<>());
-            }
             ICommonSqlService commonSqlService = SpringContextUtils.getBean(ICommonSqlService.class);
             return commonSqlService.queryWrapperForMap(whereWrapper.getPrefixSql(), whereWrapper.getQueryWrapper());
         }
 
         public Page<Map<String, Object>> queryWrapperForPage(Page<?> page) {
-            if (whereWrapper.getQueryWrapper() == null) {
-                whereWrapper.setQueryWrapper(new QueryWrapper<>());
-            }
             ICommonSqlService commonSqlService = SpringContextUtils.getBean(ICommonSqlService.class);
             return commonSqlService.queryWrapperForPage(page, whereWrapper.getPrefixSql(), whereWrapper.getQueryWrapper());
         }
 
         public List<Map<String, Object>> queryWrapperForList() {
-            if (whereWrapper.getQueryWrapper() == null) {
-                whereWrapper.setQueryWrapper(new QueryWrapper<>());
-            }
             ICommonSqlService commonSqlService = SpringContextUtils.getBean(ICommonSqlService.class);
             return commonSqlService.queryWrapperForList(whereWrapper.getPrefixSql(), whereWrapper.getQueryWrapper());
         }
