@@ -21,14 +21,14 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Component
 @Lazy(false)
-public class SpringContextUtils implements ApplicationContextAware {
+public class CustomApplicationContext implements ApplicationContextAware {
     private static ApplicationContext applicationContext;
 
-    public SpringContextUtils() {
+    public CustomApplicationContext() {
     }
 
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        SpringContextUtils.applicationContext = applicationContext;
+        CustomApplicationContext.applicationContext = applicationContext;
     }
 
     public static ApplicationContext getApplicationContext() {

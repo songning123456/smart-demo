@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.base.CaseFormat;
 import com.sonin.common.modules.common.service.ICommonSqlService;
-import com.sonin.common.tool.util.SpringContextUtils;
+import com.sonin.common.tool.util.CustomApplicationContext;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -323,17 +323,17 @@ public class JoinWrapper implements Wrapper {
         }
 
         public Map<String, Object> queryWrapperForMap() {
-            ICommonSqlService commonSqlService = SpringContextUtils.getBean(ICommonSqlService.class);
+            ICommonSqlService commonSqlService = CustomApplicationContext.getBean(ICommonSqlService.class);
             return commonSqlService.queryWrapperForMap(joinWrapper.getPrefixSql(), joinWrapper.getQueryWrapper());
         }
 
         public Page<Map<String, Object>> queryWrapperForPage(Page<?> page) {
-            ICommonSqlService commonSqlService = SpringContextUtils.getBean(ICommonSqlService.class);
+            ICommonSqlService commonSqlService = CustomApplicationContext.getBean(ICommonSqlService.class);
             return commonSqlService.queryWrapperForPage(page, joinWrapper.getPrefixSql(), joinWrapper.getQueryWrapper());
         }
 
         public List<Map<String, Object>> queryWrapperForList() {
-            ICommonSqlService commonSqlService = SpringContextUtils.getBean(ICommonSqlService.class);
+            ICommonSqlService commonSqlService = CustomApplicationContext.getBean(ICommonSqlService.class);
             return commonSqlService.queryWrapperForList(joinWrapper.getPrefixSql(), joinWrapper.getQueryWrapper());
         }
 
