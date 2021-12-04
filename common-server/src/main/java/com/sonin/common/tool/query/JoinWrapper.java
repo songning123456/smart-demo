@@ -5,9 +5,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.base.CaseFormat;
 import com.sonin.common.modules.common.service.ICommonSqlService;
 import com.sonin.common.tool.util.CustomApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author sonin
@@ -337,6 +340,26 @@ public class JoinWrapper implements Wrapper {
             return commonSqlService.queryWrapperForList(joinWrapper.getPrefixSql(), joinWrapper.getQueryWrapper());
         }
 
+        public Map<String, Object> queryDBForMap(String DBName) throws Exception {
+            JdbcTemplate jdbcTemplate;
+            if (DBName == null || "".equals(DBName)) {
+                jdbcTemplate = CustomApplicationContext.getBean(JdbcTemplate.class);
+            } else {
+                jdbcTemplate = (JdbcTemplate) CustomApplicationContext.getBean(DBName);
+            }
+            return jdbcTemplate.queryForMap(createSql());
+        }
+
+        public List<Map<String, Object>> queryDBForList(String DBName) throws Exception {
+            JdbcTemplate jdbcTemplate;
+            if (DBName == null || "".equals(DBName)) {
+                jdbcTemplate = CustomApplicationContext.getBean(JdbcTemplate.class);
+            } else {
+                jdbcTemplate = (JdbcTemplate) CustomApplicationContext.getBean(DBName);
+            }
+            return jdbcTemplate.queryForList(createSql());
+        }
+
         private String getColumns() {
             StringBuilder stringBuilder = new StringBuilder();
             for (Class clazz : joinWrapper.getClasses()) {
@@ -351,6 +374,29 @@ public class JoinWrapper implements Wrapper {
                 }
             }
             return stringBuilder.toString().replaceFirst(COMMA + SPACE, EMPTY);
+        }
+
+        private void sqlInject(String sql) throws Exception {
+            Pattern pattern = Pattern.compile("\\b(and|exec|insert|select|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|declare|or)\\b|(\\*|;|\\+|')");
+            Matcher matcher = pattern.matcher(sql.toLowerCase());
+            if (matcher.find()) {
+                throw new Exception("SQL注入: " + sql);
+            }
+        }
+
+        private String createSql() throws Exception {
+            String prefixSql = joinWrapper.getPrefixSql();
+            String suffixSql = joinWrapper.getQueryWrapper().getCustomSqlSegment();
+            Map<String, Object> paramNameValuePairs = joinWrapper.getQueryWrapper().getParamNameValuePairs();
+            for (Map.Entry<String, Object> item : paramNameValuePairs.entrySet()) {
+                Object value = item.getValue();
+                sqlInject("" + value);
+                if (value instanceof String) {
+                    value = "'" + value + "'";
+                }
+                suffixSql = suffixSql.replaceFirst("#\\{ew\\.paramNameValuePairs\\." + item.getKey() + "}", "" + value);
+            }
+            return prefixSql + SPACE + suffixSql;
         }
 
     }

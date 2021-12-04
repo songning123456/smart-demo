@@ -12,7 +12,6 @@ import com.sonin.common.modules.demo.entity.*;
 import com.sonin.common.modules.demo.vo.DemoVO;
 import com.sonin.common.tool.query.JoinResult;
 import com.sonin.common.tool.query.JoinWrapper;
-import com.sonin.common.tool.query.WhereWrapper;
 import com.sonin.common.tool.util.BeanExtUtils;
 import com.sonin.common.tool.util.JoinSqlUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -158,8 +157,10 @@ public class DemoController {
                 .innerJoin(DemoB.class, DemoB.class.getDeclaredField("aId"), DemoA.class.getDeclaredField("id"))
                 .where()
                 .eq(true, "demo_a.id", 1)
+                .comment(true, "test")
+                .like(true, "demo_a.id", 1)
                 .last(true, "limit 1")
-                .queryWrapperForList();
+                .queryDBForList(null);
         return result;
     }
 
