@@ -16,42 +16,7 @@ import java.util.regex.Pattern;
  * @author sonin
  * @date 2021/12/4 19:27
  */
-public abstract class Wrapper {
-
-    /**
-     * SQL构造条件
-     */
-    String SELECT = "select";
-
-    String AS = "as";
-
-    String FROM = "from";
-
-    String WHERE = "where";
-
-    String AND = "and";
-
-    String SPACE = " ";
-
-    String DOT = ".";
-
-    String ALL = "*";
-
-    String EQUAL = "=";
-
-    String UNDERLINE = "_";
-
-    String COMMA = ",";
-
-    String EMPTY = "";
-
-    String INNER_JOIN = "inner join";
-
-    String LEFT_JOIN = "left join";
-
-    String RIGHT_JOIN = "right join";
-
-    String ON = "on";
+public abstract class Wrapper implements IWrapper {
 
     /**
      * SQL拼接语句
@@ -66,7 +31,12 @@ public abstract class Wrapper {
 
     private QueryWrapper<?> queryWrapper;
 
-    String getColumns() {
+    /**
+     * 构造返回字段
+     *
+     * @return
+     */
+    String initColumns() {
         StringBuilder stringBuilder = new StringBuilder();
         for (Class clazz : this.classes) {
             String className = clazz.getSimpleName();
@@ -82,6 +52,12 @@ public abstract class Wrapper {
         return stringBuilder.toString().replaceFirst(COMMA + SPACE, EMPTY);
     }
 
+    /**
+     * 判断SQL注入
+     *
+     * @param sql
+     * @throws Exception
+     */
     private void sqlInject(String sql) throws Exception {
         Pattern pattern = Pattern.compile("\\b(and|exec|insert|select|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|declare|or)\\b|(\\*|;|\\+|')");
         Matcher matcher = pattern.matcher(sql.toLowerCase());
@@ -90,7 +66,13 @@ public abstract class Wrapper {
         }
     }
 
-    private String createSql() throws Exception {
+    /**
+     * 构造完整SQL
+     *
+     * @return
+     * @throws Exception
+     */
+    private String initSql() throws Exception {
         String suffixSql = this.queryWrapper.getCustomSqlSegment();
         Map<String, Object> paramNameValuePairs = this.queryWrapper.getParamNameValuePairs();
         for (Map.Entry<String, Object> item : paramNameValuePairs.entrySet()) {
@@ -127,10 +109,15 @@ public abstract class Wrapper {
         return this;
     }
 
-    public abstract String build();
+    /**
+     * 构造前缀SQL
+     *
+     * @return
+     */
+    abstract String initPrefixSql();
 
     public Wrapper where() {
-        this.prefixSql = build();
+        this.prefixSql = initPrefixSql();
         this.queryWrapper = new QueryWrapper<>();
         return this;
     }
@@ -282,22 +269,22 @@ public abstract class Wrapper {
 
     public Map<String, Object> queryDBForMap() throws Exception {
         JdbcTemplate jdbcTemplate = CustomApplicationContext.getBean(JdbcTemplate.class);
-        return jdbcTemplate.queryForMap(createSql());
+        return jdbcTemplate.queryForMap(initSql());
     }
 
     public Map<String, Object> queryDBForMap(String DBName) throws Exception {
         JdbcTemplate jdbcTemplate = (JdbcTemplate) CustomApplicationContext.getBean(DBName);
-        return jdbcTemplate.queryForMap(createSql());
+        return jdbcTemplate.queryForMap(initSql());
     }
 
     public List<Map<String, Object>> queryDBForList() throws Exception {
         JdbcTemplate jdbcTemplate = CustomApplicationContext.getBean(JdbcTemplate.class);
-        return jdbcTemplate.queryForList(createSql());
+        return jdbcTemplate.queryForList(initSql());
     }
 
     public List<Map<String, Object>> queryDBForList(String DBName) throws Exception {
         JdbcTemplate jdbcTemplate = (JdbcTemplate) CustomApplicationContext.getBean(DBName);
-        return jdbcTemplate.queryForList(createSql());
+        return jdbcTemplate.queryForList(initSql());
     }
 
 }

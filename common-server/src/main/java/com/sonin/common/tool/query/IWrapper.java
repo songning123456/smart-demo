@@ -1,10 +1,11 @@
-package com.sonin.common.tool.query2;
+package com.sonin.common.tool.query;
 
 /**
  * @author sonin
- * @date 2021/11/27 9:06
+ * @date 2021/12/5 8:36
+ * SQL构造基础常量
  */
-public interface Wrapper {
+public interface IWrapper {
 
     String SELECT = "select";
 
@@ -37,5 +38,4 @@ public interface Wrapper {
     String RIGHT_JOIN = "right join";
 
     String ON = "on";
-
 }

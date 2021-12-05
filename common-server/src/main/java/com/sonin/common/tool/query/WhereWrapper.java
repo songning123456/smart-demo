@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 /**
  * @author sonin
  * @date 2021/12/4 19:37
+ * QueryWrapper条件e.g: DemoB_bName = xxx
  */
 public class WhereWrapper extends Wrapper {
 
@@ -50,7 +51,7 @@ public class WhereWrapper extends Wrapper {
     }
 
     @Override
-    public String build() {
+    String initPrefixSql() {
         String sql = "select ${var0} from (select ${var1} from ${var2} where ${var3}) as ${var4}";
         String allClassName = this.classes.stream().map(Class::getSimpleName).collect(Collectors.joining(UNDERLINE));
         sql = sql.replaceFirst("\\$\\{var0}", allClassName + DOT + ALL);
@@ -58,7 +59,7 @@ public class WhereWrapper extends Wrapper {
             String selectedColumns = String.join(COMMA + SPACE, this.selectedColumns);
             sql = sql.replaceFirst("\\$\\{var1}", selectedColumns);
         } else {
-            sql = sql.replaceFirst("\\$\\{var1}", getColumns());
+            sql = sql.replaceFirst("\\$\\{var1}", initColumns());
         }
         String tables = this.classes.stream().map(clazz -> CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, clazz.getSimpleName())).collect(Collectors.joining(COMMA + SPACE));
         sql = sql.replaceFirst("\\$\\{var2}", tables);

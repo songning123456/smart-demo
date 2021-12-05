@@ -10,14 +10,14 @@ import com.sonin.common.modules.demo.dto.DemoDTO;
 import com.sonin.common.modules.demo.dto.DemoRelationDTO;
 import com.sonin.common.modules.demo.entity.*;
 import com.sonin.common.modules.demo.vo.DemoVO;
-import com.sonin.common.tool.query2.JoinResult;
-import com.sonin.common.tool.query2.JoinWrapper;
+import com.sonin.common.tool.query.WrapperFactory;
 import com.sonin.common.tool.util.BeanExtUtils;
 import com.sonin.common.tool.util.JoinSqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -115,52 +115,31 @@ public class DemoController {
         return result;
     }
 
-    @CustomExceptionAnno(description = "joinWrapper")
-    @PostMapping("/joinWrapper")
-    public Result<Object> joinWrapperCtrl(@RequestBody DemoDTO demoDTO) throws Exception {
+    @CustomExceptionAnno(description = "wrapper")
+    @PostMapping("/wrapper")
+    public Result<Object> testWrapper() throws Exception {
         Result<Object> result = new Result<>();
-        String sql = new JoinWrapper.Builder()
-                .select(DemoA.class.getDeclaredField("id"),
-                        DemoB.class.getDeclaredField("id"),
-                        DemoC.class.getDeclaredField("id"))
-                .select("count(*) as total")
-                .from(DemoA.class)
-                .innerJoin(DemoB.class, DemoB.class.getDeclaredField("aId"), DemoA.class.getDeclaredField("id"))
-                .innerJoin(DemoC.class, DemoC.class.getDeclaredField("bId"), DemoB.class.getDeclaredField("id"))
-                .build();
-//        String sql = new WhereWrapper.Builder()
-//                 .select("count(*) as total", "demo_a.id")
-//                .select(DemoA.class.getDeclaredField("id"),
-//                        DemoB.class.getDeclaredField("id"),
-//                        DemoC.class.getDeclaredField("id"))
-//                .from(DemoA.class, DemoB.class, DemoC.class)
-        // .and(DemoA.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
-//                 .and(DemoB.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
-//                .build();
-        QueryWrapper<?> queryWrapper = new QueryWrapper<>();
-//         queryWrapper.eq("DemoA_id", "1");
-//        queryWrapper.eq("demo_a.id", "1");
-        List<Map<String, Object>> mapList = iCommonSqlService.queryWrapperForList(sql, queryWrapper);
-//        result.setResult(mapList);
-        List<Map<String, Object>> resList = new JoinResult.Builder()
-                .maps2MapsWithoutPrefix(mapList, (targetFieldName, srcFieldVal) -> {
-                    if ("aName_dictText".equals(targetFieldName)) {
-                        return srcFieldVal + "test123456";
-                    } else if ("bName_dictText".equals(targetFieldName)) {
-                        return srcFieldVal + "test111111";
-                    }
-                    return srcFieldVal;
-                });
-        result.setResult(resList);
-        List<Map<String, Object>> mapList1 = new JoinWrapper.Builder()
+        List<Map<String, Object>> joinMapList = WrapperFactory.joinWrapper()
                 .from(DemoA.class)
                 .innerJoin(DemoB.class, DemoB.class.getDeclaredField("aId"), DemoA.class.getDeclaredField("id"))
                 .where()
                 .eq(true, "demo_a.id", 1)
-                .comment(true, "test")
                 .like(true, "demo_a.id", 1)
                 .last(true, "limit 1")
-                .queryDBForList(null);
+                .in(true, "demo_a.id", Arrays.asList(1, 2))
+                .queryDBForList();
+        List<Map<String, Object>> whereMapList = WrapperFactory.whereWrapper()
+                .from(DemoA.class, DemoB.class, DemoC.class)
+                .and(DemoA.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
+                .and(DemoB.class.getDeclaredField("id"), DemoC.class.getDeclaredField("bId"))
+                .where()
+                .eq(true, "DemoA_id", 1)
+                .like(true, "DemoA_id", 1)
+                .last(true, "limit 1")
+                .in(true, "DemoA_id", Arrays.asList(1, 2))
+                .queryDBForList();
+        List<Map<String, Object>> resList = WrapperFactory.result()
+                .maps2MapsWithoutPrefix(joinMapList);
         return result;
     }
 
