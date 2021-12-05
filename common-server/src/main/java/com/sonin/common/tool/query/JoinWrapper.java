@@ -14,27 +14,47 @@ public class JoinWrapper extends Wrapper {
 
     private Class from;
 
-    public JoinWrapper() {
+    JoinWrapper() {
         this.classes = new LinkedHashSet<>();
     }
 
-    public JoinWrapper from(Class clazz) {
-        this.from = clazz;
-        this.classes.add(clazz);
+    @Override
+    String initPrefixSql() {
+        StringBuilder stringBuilder = new StringBuilder(SELECT + SPACE);
+        if (this.selectedColumns != null && !this.selectedColumns.isEmpty()) {
+            String selectedColumns = String.join(COMMA + SPACE, this.selectedColumns);
+            stringBuilder.append(selectedColumns);
+        } else {
+            stringBuilder.append(initColumns());
+        }
+        stringBuilder.append(SPACE).append(FROM).append(SPACE).append(CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, this.from.getSimpleName()));
+        if (this.conditions != null && !this.conditions.isEmpty()) {
+            stringBuilder.append(SPACE).append(String.join(SPACE, this.conditions));
+        }
+        return stringBuilder.toString();
+    }
+
+    @Override
+    public Wrapper from(Class... classes) {
+        this.from = classes[0];
+        this.classes.add(classes[0]);
         return this;
     }
 
-    public JoinWrapper innerJoin(Class clazz, Field leftField, Field rightField) {
+    @Override
+    public Wrapper innerJoin(Class clazz, Field leftField, Field rightField) {
         directionJoin(clazz, leftField, rightField, INNER_JOIN);
         return this;
     }
 
-    public JoinWrapper leftJoin(Class clazz, Field leftField, Field rightField) {
+    @Override
+    public Wrapper leftJoin(Class clazz, Field leftField, Field rightField) {
         directionJoin(clazz, leftField, rightField, LEFT_JOIN);
         return this;
     }
 
-    public JoinWrapper rightJoin(Class clazz, Field leftField, Field rightField) {
+    @Override
+    public Wrapper rightJoin(Class clazz, Field leftField, Field rightField) {
         directionJoin(clazz, leftField, rightField, RIGHT_JOIN);
         return this;
     }
@@ -60,19 +80,8 @@ public class JoinWrapper extends Wrapper {
     }
 
     @Override
-    String initPrefixSql() {
-        StringBuilder stringBuilder = new StringBuilder(SELECT + SPACE);
-        if (this.selectedColumns != null && !this.selectedColumns.isEmpty()) {
-            String selectedColumns = String.join(COMMA + SPACE, this.selectedColumns);
-            stringBuilder.append(selectedColumns);
-        } else {
-            stringBuilder.append(initColumns());
-        }
-        stringBuilder.append(SPACE).append(FROM).append(SPACE).append(CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, this.from.getSimpleName()));
-        if (this.conditions != null && !this.conditions.isEmpty()) {
-            stringBuilder.append(SPACE).append(String.join(SPACE, this.conditions));
-        }
-        return stringBuilder.toString();
+    public Wrapper and(Field leftField, Field rightField) {
+        return this;
     }
 
 }

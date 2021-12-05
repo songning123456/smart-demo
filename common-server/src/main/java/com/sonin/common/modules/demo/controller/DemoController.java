@@ -120,7 +120,6 @@ public class DemoController {
     public Result<Object> testWrapper() throws Exception {
         Result<Object> result = new Result<>();
         List<Map<String, Object>> joinMapList = WrapperFactory.joinWrapper()
-                .from(DemoA.class)
                 .innerJoin(DemoB.class, DemoB.class.getDeclaredField("aId"), DemoA.class.getDeclaredField("id"))
                 .where()
                 .eq(true, "demo_a.id", 1)

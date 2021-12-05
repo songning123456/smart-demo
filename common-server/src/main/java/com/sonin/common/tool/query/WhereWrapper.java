@@ -14,15 +14,53 @@ import java.util.stream.Collectors;
  */
 public class WhereWrapper extends Wrapper {
 
-    public WhereWrapper() {
+    WhereWrapper() {
         this.classes = new LinkedHashSet<>();
     }
 
-    public WhereWrapper from(Class... classes) {
+    @Override
+    String initPrefixSql() {
+        String sql = "select ${var0} from (select ${var1} from ${var2} where ${var3}) as ${var4}";
+        String allClassName = this.classes.stream().map(Class::getSimpleName).collect(Collectors.joining(UNDERLINE));
+        sql = sql.replaceFirst("\\$\\{var0}", allClassName + DOT + ALL);
+        if (this.selectedColumns != null && !this.selectedColumns.isEmpty()) {
+            String selectedColumns = String.join(COMMA + SPACE, this.selectedColumns);
+            sql = sql.replaceFirst("\\$\\{var1}", selectedColumns);
+        } else {
+            sql = sql.replaceFirst("\\$\\{var1}", initColumns());
+        }
+        String tables = this.classes.stream().map(clazz -> CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, clazz.getSimpleName())).collect(Collectors.joining(COMMA + SPACE));
+        sql = sql.replaceFirst("\\$\\{var2}", tables);
+        if (this.conditions != null && !this.conditions.isEmpty()) {
+            sql = sql.replaceFirst("\\$\\{var3}", String.join(SPACE + AND + SPACE, this.conditions));
+        } else {
+            sql = sql.replaceFirst(SPACE + WHERE + SPACE + "\\$\\{var3}", EMPTY);
+        }
+        return sql.replaceFirst("\\$\\{var4}", allClassName);
+    }
+
+    @Override
+    public Wrapper from(Class... classes) {
         this.classes.addAll(Arrays.asList(classes));
         return this;
     }
 
+    @Override
+    public Wrapper innerJoin(Class clazz, Field leftField, Field rightField) {
+        return this;
+    }
+
+    @Override
+    public Wrapper leftJoin(Class clazz, Field leftField, Field rightField) {
+        return this;
+    }
+
+    @Override
+    public Wrapper rightJoin(Class clazz, Field leftField, Field rightField) {
+        return this;
+    }
+
+    @Override
     public WhereWrapper and(Field leftField, Field rightField) {
         if (this.conditions == null) {
             this.conditions = new LinkedHashSet<>();
@@ -48,27 +86,6 @@ public class WhereWrapper extends Wrapper {
         // e.g: demo_a.id = demo_b.a_id
         this.conditions.add(leftTableName + DOT + leftTableFieldName + SPACE + EQUAL + SPACE + rightTableName + DOT + rightTableFieldName);
         return this;
-    }
-
-    @Override
-    String initPrefixSql() {
-        String sql = "select ${var0} from (select ${var1} from ${var2} where ${var3}) as ${var4}";
-        String allClassName = this.classes.stream().map(Class::getSimpleName).collect(Collectors.joining(UNDERLINE));
-        sql = sql.replaceFirst("\\$\\{var0}", allClassName + DOT + ALL);
-        if (this.selectedColumns != null && !this.selectedColumns.isEmpty()) {
-            String selectedColumns = String.join(COMMA + SPACE, this.selectedColumns);
-            sql = sql.replaceFirst("\\$\\{var1}", selectedColumns);
-        } else {
-            sql = sql.replaceFirst("\\$\\{var1}", initColumns());
-        }
-        String tables = this.classes.stream().map(clazz -> CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, clazz.getSimpleName())).collect(Collectors.joining(COMMA + SPACE));
-        sql = sql.replaceFirst("\\$\\{var2}", tables);
-        if (this.conditions != null && !this.conditions.isEmpty()) {
-            sql = sql.replaceFirst("\\$\\{var3}", String.join(SPACE + AND + SPACE, this.conditions));
-        } else {
-            sql = sql.replaceFirst(SPACE + WHERE + SPACE + "\\$\\{var3}", EMPTY);
-        }
-        return sql.replaceFirst("\\$\\{var4}", allClassName);
     }
 
 }

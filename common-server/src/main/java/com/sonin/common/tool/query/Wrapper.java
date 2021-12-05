@@ -127,11 +127,25 @@ public abstract class Wrapper implements IWrapper {
     }
 
     /**
+     * === 以下抽象方法 ===
+     */
+
+    /**
      * 构造前缀SQL
      *
      * @return
      */
     abstract String initPrefixSql();
+
+    public abstract Wrapper from(Class... classes);
+
+    public abstract Wrapper innerJoin(Class clazz, Field leftField, Field rightField);
+
+    public abstract Wrapper leftJoin(Class clazz, Field leftField, Field rightField);
+
+    public abstract Wrapper rightJoin(Class clazz, Field leftField, Field rightField);
+
+    public abstract Wrapper and(Field leftField, Field rightField);
 
     /**
      * 准备构造查询条件
