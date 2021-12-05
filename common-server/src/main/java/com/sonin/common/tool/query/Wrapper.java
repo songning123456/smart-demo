@@ -132,7 +132,7 @@ public abstract class Wrapper implements IWrapper {
      *
      * @return
      */
-    abstract String initPrefixSql();
+    public abstract String initPrefixSql();
 
     public abstract Wrapper from(Class... classes);
 

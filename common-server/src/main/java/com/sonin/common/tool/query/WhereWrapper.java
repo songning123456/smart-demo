@@ -19,7 +19,7 @@ public class WhereWrapper extends Wrapper {
     }
 
     @Override
-    String initPrefixSql() {
+    public String initPrefixSql() {
         String sql = "select ${var0} from (select ${var1} from ${var2} where ${var3}) as ${var4}";
         String allClassName = this.classes.stream().map(Class::getSimpleName).collect(Collectors.joining(UNDERLINE));
         sql = sql.replaceFirst("\\$\\{var0}", allClassName + DOT + ALL);

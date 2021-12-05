@@ -19,7 +19,7 @@ public class JoinWrapper extends Wrapper {
     }
 
     @Override
-    String initPrefixSql() {
+    public String initPrefixSql() {
         StringBuilder stringBuilder = new StringBuilder(SELECT + SPACE);
         if (this.selectedColumns != null && !this.selectedColumns.isEmpty()) {
             String selectedColumns = String.join(COMMA + SPACE, this.selectedColumns);
