@@ -292,6 +292,11 @@ public abstract class Wrapper implements IWrapper {
         return this;
     }
 
+    public Wrapper orderBy(boolean condition, boolean isAsc, String... columns) {
+        this.queryWrapper.orderBy(condition, isAsc, columns);
+        return this;
+    }
+
     /**
      * === 以下方式获取请求结果 ===
      */
