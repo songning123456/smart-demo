@@ -61,7 +61,7 @@ public class WhereWrapper extends Wrapper {
     }
 
     @Override
-    public WhereWrapper and(Field leftField, Field rightField) {
+    public Wrapper and(Field leftField, Field rightField) {
         if (this.conditions == null) {
             this.conditions = new LinkedHashSet<>();
         }

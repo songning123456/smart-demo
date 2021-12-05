@@ -120,6 +120,7 @@ public class DemoController {
     public Result<Object> testWrapper() throws Exception {
         Result<Object> result = new Result<>();
         List<Map<String, Object>> joinMapList = WrapperFactory.joinWrapper()
+                .from(DemoA.class)
                 .innerJoin(DemoB.class, DemoB.class.getDeclaredField("aId"), DemoA.class.getDeclaredField("id"))
                 .where()
                 .eq(true, "demo_a.id", 1)
@@ -128,13 +129,14 @@ public class DemoController {
                 .in(true, "demo_a.id", Arrays.asList(1, 2))
                 .queryDBForList();
         Page<Map<String, Object>> whereMapList = WrapperFactory.whereWrapper()
-                .from(DemoA.class, DemoB.class, DemoC.class)
-                .and(DemoA.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
-                .and(DemoB.class.getDeclaredField("id"), DemoC.class.getDeclaredField("bId"))
+                .from(DemoA.class)
+                // .from(DemoA.class, DemoB.class, DemoC.class)
+                //.and(DemoA.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
+                //.and(DemoB.class.getDeclaredField("id"), DemoC.class.getDeclaredField("bId"))
                 .where()
-                .eq(true, "DemoA_id", 1)
-                .like(true, "DemoA_id", 1)
-                .in(true, "DemoA_id", Arrays.asList(1, 2))
+//                .eq(true, "DemoA_id", 1)
+//                .like(true, "DemoA_id", 1)
+//                .in(true, "DemoA_id", Arrays.asList(1, 2))
                 .queryDBForPage(new Page(1, 10));
         List<Map<String, Object>> resList = WrapperFactory.result()
                 .maps2MapsWithoutPrefix(joinMapList);

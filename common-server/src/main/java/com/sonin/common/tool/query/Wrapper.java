@@ -6,8 +6,6 @@ import com.google.common.base.CaseFormat;
 import com.sonin.common.modules.common.service.ICommonSqlService;
 import com.sonin.common.tool.util.CustomApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.SneakyThrows;
@@ -344,22 +342,21 @@ public abstract class Wrapper implements IWrapper {
         return page;
     }
 
+    @SneakyThrows
     private void queryForPage(Page page, JdbcTemplate jdbcTemplate, String customPageSql) {
         TransactionTemplate transactionTemplate = CustomApplicationContext.getBean(TransactionTemplate.class);
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            @SneakyThrows
-            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                Map<String, Object> map = jdbcTemplate.queryForMap(SELECT + SPACE + COUNT_ALL + SPACE + FROM + SPACE + LEFT_BRACKET + initSql() + RIGHT_BRACKET + SPACE + AS + SPACE + "tmp");
-                page.setTotal(Long.parseLong("" + map.get(COUNT_ALL)));
-                if (customPageSql == null || "".equals(customPageSql)) {
-                    queryWrapper.last(LIMIT + SPACE + (page.getCurrent() - 1) * page.getSize() + COMMA + SPACE + page.getCurrent() * page.getSize());
-                } else {
-                    queryWrapper.last(customPageSql);
-                }
-                page.setRecords(jdbcTemplate.queryForList(initSql()));
-            }
-        });
+        String countSql = SELECT + SPACE + COUNT_ALL + SPACE + FROM + SPACE + LEFT_BRACKET + initSql() + RIGHT_BRACKET + SPACE + AS + SPACE + "tmp";
+        if (customPageSql == null || "".equals(customPageSql)) {
+            queryWrapper.last(LIMIT + SPACE + (page.getCurrent() - 1) * page.getSize() + COMMA + SPACE + page.getCurrent() * page.getSize());
+        } else {
+            queryWrapper.last(customPageSql);
+        }
+        String pageSql = initSql();
+        transactionTemplate.execute((transactionStatus -> {
+            page.setTotal(Long.parseLong("" + jdbcTemplate.queryForMap(countSql).get(COUNT_ALL)));
+            page.setRecords(jdbcTemplate.queryForList(pageSql));
+            return 1;
+        }));
     }
 
     public List<Map<String, Object>> queryDBForList() throws Exception {
