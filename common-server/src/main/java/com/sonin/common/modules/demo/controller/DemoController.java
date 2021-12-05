@@ -128,16 +128,15 @@ public class DemoController {
                 .last(true, "limit 1")
                 .in(true, "demo_a.id", Arrays.asList(1, 2))
                 .queryDBForList();
-        List<Map<String, Object>> whereMapList = WrapperFactory.whereWrapper()
+        Page<Map<String, Object>> whereMapList = WrapperFactory.whereWrapper()
                 .from(DemoA.class, DemoB.class, DemoC.class)
                 .and(DemoA.class.getDeclaredField("id"), DemoB.class.getDeclaredField("aId"))
                 .and(DemoB.class.getDeclaredField("id"), DemoC.class.getDeclaredField("bId"))
                 .where()
                 .eq(true, "DemoA_id", 1)
                 .like(true, "DemoA_id", 1)
-                .last(true, "limit 1")
                 .in(true, "DemoA_id", Arrays.asList(1, 2))
-                .queryDBForList();
+                .queryDBForPage(new Page(1, 10));
         List<Map<String, Object>> resList = WrapperFactory.result()
                 .maps2MapsWithoutPrefix(joinMapList);
         return result;

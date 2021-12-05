@@ -6,6 +6,11 @@ import com.google.common.base.CaseFormat;
 import com.sonin.common.modules.common.service.ICommonSqlService;
 import com.sonin.common.tool.util.CustomApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import lombok.SneakyThrows;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -55,14 +60,14 @@ public abstract class Wrapper implements IWrapper {
     /**
      * 判断SQL注入
      *
-     * @param sql
+     * @param param
      * @throws Exception
      */
-    private void sqlInject(String sql) throws Exception {
+    private void sqlInject(String param) throws Exception {
         Pattern pattern = Pattern.compile("\\b(and|exec|insert|select|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|declare|or)\\b|(\\*|;|\\+|')");
-        Matcher matcher = pattern.matcher(sql.toLowerCase());
+        Matcher matcher = pattern.matcher(param.toLowerCase());
         if (matcher.find()) {
-            throw new Exception("SQL注入: " + sql);
+            throw new Exception("SQL注入: " + param);
         }
     }
 
@@ -86,6 +91,12 @@ public abstract class Wrapper implements IWrapper {
         return prefixSql + SPACE + suffixSql;
     }
 
+    /**
+     * 选择查询字段，格式: DemoA_aName
+     *
+     * @param fields
+     * @return
+     */
     public Wrapper select(Field... fields) {
         if (this.selectedColumns == null) {
             this.selectedColumns = new LinkedHashSet<>();
@@ -101,6 +112,12 @@ public abstract class Wrapper implements IWrapper {
         return this;
     }
 
+    /**
+     * 选择查询字段，格式自定义
+     *
+     * @param fields
+     * @return
+     */
     public Wrapper select(String... fields) {
         if (this.selectedColumns == null) {
             this.selectedColumns = new LinkedHashSet<>();
@@ -116,11 +133,20 @@ public abstract class Wrapper implements IWrapper {
      */
     abstract String initPrefixSql();
 
+    /**
+     * 准备构造查询条件
+     *
+     * @return
+     */
     public Wrapper where() {
         this.prefixSql = initPrefixSql();
         this.queryWrapper = new QueryWrapper<>();
         return this;
     }
+
+    /**
+     * === 以下方式提供QueryWrapper构造条件 ===
+     */
 
     public Wrapper eq(boolean condition, String column, Object val) {
         this.queryWrapper.eq(condition, column, val);
@@ -252,6 +278,10 @@ public abstract class Wrapper implements IWrapper {
         return this;
     }
 
+    /**
+     * === 以下方式获取请求结果 ===
+     */
+
     public Map<String, Object> queryWrapperForMap() {
         ICommonSqlService commonSqlService = CustomApplicationContext.getBean(ICommonSqlService.class);
         return commonSqlService.queryWrapperForMap(this.prefixSql, this.queryWrapper);
@@ -275,6 +305,42 @@ public abstract class Wrapper implements IWrapper {
     public Map<String, Object> queryDBForMap(String DBName) throws Exception {
         JdbcTemplate jdbcTemplate = (JdbcTemplate) CustomApplicationContext.getBean(DBName);
         return jdbcTemplate.queryForMap(initSql());
+    }
+
+    public Page<Map<String, Object>> queryDBForPage(Page page) {
+        JdbcTemplate jdbcTemplate = CustomApplicationContext.getBean(JdbcTemplate.class);
+        this.queryForPage(page, jdbcTemplate, null);
+        return page;
+    }
+
+    public Page<Map<String, Object>> queryDBForPage(Page page, String customPageSql) {
+        JdbcTemplate jdbcTemplate = CustomApplicationContext.getBean(JdbcTemplate.class);
+        this.queryForPage(page, jdbcTemplate, customPageSql);
+        return page;
+    }
+
+    public Page<Map<String, Object>> queryDBForPage(Page page, String DBName, String customPageSql) {
+        JdbcTemplate jdbcTemplate = (JdbcTemplate) CustomApplicationContext.getBean(DBName);
+        this.queryForPage(page, jdbcTemplate, customPageSql);
+        return page;
+    }
+
+    private void queryForPage(Page page, JdbcTemplate jdbcTemplate, String customPageSql) {
+        TransactionTemplate transactionTemplate = CustomApplicationContext.getBean(TransactionTemplate.class);
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            @SneakyThrows
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                Map<String, Object> map = jdbcTemplate.queryForMap(SELECT + SPACE + COUNT_ALL + SPACE + FROM + SPACE + LEFT_BRACKET + initSql() + RIGHT_BRACKET + SPACE + AS + SPACE + "tmp");
+                page.setTotal(Long.parseLong("" + map.get(COUNT_ALL)));
+                if (customPageSql == null || "".equals(customPageSql)) {
+                    queryWrapper.last(LIMIT + SPACE + (page.getCurrent() - 1) * page.getSize() + COMMA + SPACE + page.getCurrent() * page.getSize());
+                } else {
+                    queryWrapper.last(customPageSql);
+                }
+                page.setRecords(jdbcTemplate.queryForList(initSql()));
+            }
+        });
     }
 
     public List<Map<String, Object>> queryDBForList() throws Exception {

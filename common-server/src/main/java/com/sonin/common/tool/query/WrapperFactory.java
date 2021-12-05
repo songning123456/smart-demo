@@ -3,6 +3,7 @@ package com.sonin.common.tool.query;
 /**
  * @author sonin
  * @date 2021/12/5 8:16
+ * Wrapper工厂
  */
 public class WrapperFactory {
 

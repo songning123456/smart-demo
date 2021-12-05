@@ -11,6 +11,8 @@ public interface IWrapper {
 
     String AS = "as";
 
+    String COUNT_ALL = "count(*)";
+
     String FROM = "from";
 
     String WHERE = "where";
@@ -38,4 +40,10 @@ public interface IWrapper {
     String RIGHT_JOIN = "right join";
 
     String ON = "on";
+
+    String LEFT_BRACKET = "(";
+
+    String RIGHT_BRACKET = ")";
+
+    String LIMIT = "limit";
 }
