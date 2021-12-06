@@ -7,9 +7,12 @@ import com.sonin.common.modules.demo.entity.DemoA;
 import com.sonin.common.modules.demo.entity.DemoB;
 import com.sonin.common.modules.demo.entity.DemoC;
 import com.sonin.common.modules.demo.entity.DemoD;
+import com.sonin.common.tool.callback.IThreadPoolCallback;
 import com.sonin.common.tool.javassist.Javassist;
 import com.sonin.common.tool.javassist.JavassistFactory;
 import com.sonin.common.tool.pool.CustomThreadPool;
+import com.sonin.common.tool.pool.ThreadPool;
+import com.sonin.common.tool.pool.ThreadPoolFactory;
 import com.sonin.common.tool.util.JoinSqlUtils;
 import javassist.*;
 import org.junit.Test;
@@ -17,9 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author sonin
@@ -28,8 +32,6 @@ import java.util.concurrent.atomic.AtomicLong;
 @SpringBootTest
 public class CommonServerApplicationTests {
 
-    @Autowired
-    private CommonSqlMapper commonSqlMapper;
 
     @Test
     public void createField() throws Exception {
@@ -71,14 +73,6 @@ public class CommonServerApplicationTests {
     public void testJoinSql() throws Exception {
         String sql = JoinSqlUtils.multiJoinSqlQuery(new EquipmentRepairAndChild());
         System.out.println(sql);
-    }
-
-    @Test
-    public void testDeleteWrapper() {
-        QueryWrapper<?> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("id", "111");
-        int res = commonSqlMapper.deleteWrapper("delete from demo_a", queryWrapper);
-        System.out.println("");
     }
 
     @Test
@@ -129,14 +123,40 @@ public class CommonServerApplicationTests {
 
     @Test
     public void test12() throws Exception {
+        ThreadPoolExecutor threadPoolExecutor = new CustomThreadPool.Builder().corePoolSize(10).queueCapacity(10000).build();
+        CountDownLatch countDownLatch = new CountDownLatch(1000);
         Class class1 = JavassistFactory.create()
                 .className("Test1")
                 .field(String.class, "prop")
                 .buildClass();
-        Class class2 = JavassistFactory.create()
-                .className("Test2")
-                .similarClassName(class1.getSimpleName())
-                .similarClass();
+        for (int i = 0; i < 1000; i++) {
+            threadPoolExecutor.execute(() -> {
+                try {
+                    Class class2 = JavassistFactory.create()
+                            .className("Test2")
+                            .similarClassName(class1.getSimpleName())
+                            .similarClass();
+                    countDownLatch.countDown();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+        countDownLatch.await();
+        threadPoolExecutor.shutdown();
+        System.out.println();
+    }
+
+    @Test
+    public void test13() throws Exception {
+        Map<String, String> map = new ConcurrentHashMap<>();
+        ThreadPoolFactory.create()
+                .corePoolSize(10)
+                .queueCapacity(100)
+                .execute(10, () -> {
+                    map.put("" + Math.random(), "" + Math.random());
+                    System.out.println(1 / 0);
+                });
         System.out.println();
     }
 
