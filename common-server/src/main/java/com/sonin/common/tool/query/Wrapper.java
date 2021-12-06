@@ -313,36 +313,13 @@ public abstract class Wrapper implements IWrapper {
         return commonSqlService.queryWrapperForList(this.prefixSql, this.queryWrapper);
     }
 
-    public Map<String, Object> queryDBForMap() throws Exception {
-        JdbcTemplate jdbcTemplate = CustomApplicationContext.getBean(JdbcTemplate.class);
-        return jdbcTemplate.queryForMap(initSql());
-    }
-
     public Map<String, Object> queryDBForMap(String DBName) throws Exception {
         JdbcTemplate jdbcTemplate = (JdbcTemplate) CustomApplicationContext.getBean(DBName);
         return jdbcTemplate.queryForMap(initSql());
     }
 
-    public Page<Map<String, Object>> queryDBForPage(Page page) {
-        JdbcTemplate jdbcTemplate = CustomApplicationContext.getBean(JdbcTemplate.class);
-        this.queryForPage(page, jdbcTemplate, null);
-        return page;
-    }
-
-    public Page<Map<String, Object>> queryDBForPage(Page page, String customPageSql) {
-        JdbcTemplate jdbcTemplate = CustomApplicationContext.getBean(JdbcTemplate.class);
-        this.queryForPage(page, jdbcTemplate, customPageSql);
-        return page;
-    }
-
-    public Page<Map<String, Object>> queryDBForPage(Page page, String DBName, String customPageSql) {
+    public Page<Map<String, Object>> queryDBForPage(Page page, String DBName, String customPageSql) throws Exception {
         JdbcTemplate jdbcTemplate = (JdbcTemplate) CustomApplicationContext.getBean(DBName);
-        this.queryForPage(page, jdbcTemplate, customPageSql);
-        return page;
-    }
-
-    @SneakyThrows
-    private void queryForPage(Page page, JdbcTemplate jdbcTemplate, String customPageSql) {
         TransactionTemplate transactionTemplate = CustomApplicationContext.getBean(TransactionTemplate.class);
         String countSql = SELECT + SPACE + COUNT_ALL + SPACE + FROM + SPACE + LEFT_BRACKET + initSql() + RIGHT_BRACKET + SPACE + AS + SPACE + "tmp";
         if (customPageSql == null || "".equals(customPageSql)) {
@@ -356,11 +333,7 @@ public abstract class Wrapper implements IWrapper {
             page.setRecords(jdbcTemplate.queryForList(pageSql));
             return 1;
         }));
-    }
-
-    public List<Map<String, Object>> queryDBForList() throws Exception {
-        JdbcTemplate jdbcTemplate = CustomApplicationContext.getBean(JdbcTemplate.class);
-        return jdbcTemplate.queryForList(initSql());
+        return page;
     }
 
     public List<Map<String, Object>> queryDBForList(String DBName) throws Exception {

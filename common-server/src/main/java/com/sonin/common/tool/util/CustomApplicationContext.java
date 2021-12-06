@@ -7,6 +7,7 @@ package com.sonin.common.tool.util;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -36,7 +37,7 @@ public class CustomApplicationContext implements ApplicationContextAware {
     }
 
     public static HttpServletRequest getHttpServletRequest() {
-        return ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+        return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
     }
 
     public static String getDomain() {
@@ -59,14 +60,14 @@ public class CustomApplicationContext implements ApplicationContextAware {
     }
 
     public static void setJdbcTemplateBean(String beanName, Class clazz, DataSource dataSource) {
-        ConfigurableApplicationContext context = (ConfigurableApplicationContext)getApplicationContext();
-        DefaultListableBeanFactory beanDefReg = (DefaultListableBeanFactory)context.getBeanFactory();
+        ConfigurableApplicationContext context = (ConfigurableApplicationContext) getApplicationContext();
+        DefaultListableBeanFactory beanDefReg = (DefaultListableBeanFactory) context.getBeanFactory();
         BeanDefinitionBuilder beanDefBuilder = BeanDefinitionBuilder.genericBeanDefinition(clazz);
         beanDefBuilder.addPropertyValue("dataSource", dataSource);
         beanDefBuilder.setScope("singleton");
-        BeanDefinition beanDef = beanDefBuilder.getBeanDefinition();
+        BeanDefinition beanDefinition = beanDefBuilder.getBeanDefinition();
         if (!beanDefReg.containsBeanDefinition(beanName)) {
-            beanDefReg.registerBeanDefinition(beanName, beanDef);
+            beanDefReg.registerBeanDefinition(beanName, beanDefinition);
         }
     }
 

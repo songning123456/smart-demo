@@ -127,7 +127,7 @@ public class DemoController {
                 .like(true, "demo_a.id", 1)
                 .last(true, "limit 1")
                 .in(true, "demo_a.id", Arrays.asList(1, 2))
-                .queryDBForList();
+                .queryDBForList("slave");
         Page<Map<String, Object>> whereMapList = WrapperFactory.whereWrapper()
                 .from(DemoA.class)
                 // .from(DemoA.class, DemoB.class, DemoC.class)
@@ -137,7 +137,7 @@ public class DemoController {
 //                .eq(true, "DemoA_id", 1)
 //                .like(true, "DemoA_id", 1)
 //                .in(true, "DemoA_id", Arrays.asList(1, 2))
-                .queryDBForPage(new Page(1, 10));
+                .queryDBForPage(new Page(1, 10), "master", "");
         List<Map<String, Object>> resList = WrapperFactory.result()
                 .maps2MapsWithoutPrefix(joinMapList);
         return result;
