@@ -37,7 +37,7 @@ public class Javassist {
     }
 
     /**
-     * 新创建的类class继承similarClass
+     * 新创建的类class属性继承自similarClass
      *
      * @param similarClassName
      * @return
