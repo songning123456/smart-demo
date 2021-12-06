@@ -5,14 +5,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.base.CaseFormat;
 import com.sonin.common.modules.common.service.ICommonSqlService;
 import com.sonin.common.tool.util.CustomApplicationContext;
+import lombok.SneakyThrows;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
+
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import lombok.SneakyThrows;
 
 /**
  * @author sonin
@@ -47,7 +47,7 @@ public abstract class Wrapper implements IWrapper {
             for (Field field : fields) {
                 String classFieldName = field.getName();
                 String tableFieldName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, classFieldName);
-                String alias = className + UNDERLINE + classFieldName;
+                String alias = DOUBLE_QUOTES + className + UNDERLINE + classFieldName + DOUBLE_QUOTES;
                 stringBuilder.append(COMMA).append(SPACE).append(tableName).append(DOT).append(tableFieldName).append(SPACE).append(AS).append(SPACE).append(alias);
             }
         }
@@ -103,7 +103,7 @@ public abstract class Wrapper implements IWrapper {
             String tableName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, className);
             String fieldName = field.getName();
             String column = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, fieldName);
-            String alias = tableName + DOT + column + SPACE + AS + SPACE + className + UNDERLINE + fieldName;
+            String alias = tableName + DOT + column + SPACE + AS + SPACE + DOUBLE_QUOTES + className + UNDERLINE + fieldName + DOUBLE_QUOTES;
             this.selectedColumns.add(alias);
         }
         return this;

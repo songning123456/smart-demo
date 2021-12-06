@@ -46,4 +46,7 @@ public interface IWrapper {
     String RIGHT_BRACKET = ")";
 
     String LIMIT = "limit";
+
+    String DOUBLE_QUOTES = "\"";
+
 }

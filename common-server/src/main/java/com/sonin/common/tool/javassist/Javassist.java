@@ -19,7 +19,7 @@ public class Javassist {
 
     private String similarClassName;
 
-    private Map<Class, String> fieldMap;
+    private Map<String, Class> fieldMap;
 
     Javassist() {
         fieldMap = new LinkedHashMap<>();
@@ -50,16 +50,22 @@ public class Javassist {
     /**
      * 添加字段(会生成get/set方法)
      *
-     * @param fieldType
      * @param fieldName
+     * @param fieldType
      * @return
      */
-    public Javassist field(Class fieldType, String fieldName) {
-        fieldMap.put(fieldType, fieldName);
+    public Javassist field(String fieldName, Class fieldType) {
+        fieldMap.put(fieldName, fieldType);
         return this;
     }
 
-    public Class buildClass() throws Exception {
+    /**
+     * type: 1 => 根据field生成类; 2 => 根据similarClass生成相似类
+     *
+     * @param type
+     * @throws Exception
+     */
+    private void initClass(int type) throws Exception {
         if (!cache.containsKey(className)) {
             synchronized (cache) {
                 if (!cache.containsKey(className)) {
@@ -67,8 +73,15 @@ public class Javassist {
                     ClassPool classPool = ClassPool.getDefault();
                     // 生成类的名称
                     CtClass ctClass = classPool.makeClass(className);
-                    for (Map.Entry<Class, String> item : fieldMap.entrySet()) {
-                        initField(classPool, ctClass, item.getKey().getName(), item.getValue());
+                    if (type == 1) {
+                        for (Map.Entry<String, Class> item : fieldMap.entrySet()) {
+                            initField(classPool, ctClass, item.getValue().getName(), item.getKey());
+                        }
+                    } else if (type == 2) {
+                        Class similarClass = cache.get(similarClassName);
+                        for (Field field : similarClass.getDeclaredFields()) {
+                            initField(classPool, ctClass, field.getType().getName(), field.getName());
+                        }
                     }
                     // 创建构造方法，指定了构造方法的参数类型和构造方法所属的类
                     CtConstructor ctConstructor = new CtConstructor(new CtClass[]{}, ctClass);
@@ -80,33 +93,16 @@ public class Javassist {
                 }
             }
         }
-        return cache.get(className);
     }
 
-    public Class similarClass() throws Exception {
-        if (!cache.containsKey(similarClassName)) {
-            this.buildClass();
+    public Class buildClass() throws Exception {
+        if (similarClassName == null) {
+            initClass(1);
         } else {
-            if (!cache.containsKey(className)) {
-                synchronized (cache) {
-                    if (!cache.containsKey(className)) {
-                        // 创建ClassPool
-                        ClassPool classPool = ClassPool.getDefault();
-                        // 生成类的名称
-                        CtClass ctClass = classPool.makeClass(className);
-                        Class extentClass = cache.get(similarClassName);
-                        for (Field field : extentClass.getDeclaredFields()) {
-                            initField(classPool, ctClass, field.getType().getName(), field.getName());
-                        }
-                        // 创建构造方法，指定了构造方法的参数类型和构造方法所属的类
-                        CtConstructor ctConstructor = new CtConstructor(new CtClass[]{}, ctClass);
-                        // 设置方法体
-                        ctConstructor.setBody("{\n}");
-                        ctClass.addConstructor(ctConstructor);
-                        // 缓存生成的类
-                        cache.put(className, ctClass.toClass());
-                    }
-                }
+            if (!cache.containsKey(similarClassName)) {
+                initClass(1);
+            } else {
+                initClass(2);
             }
         }
         return cache.get(className);

@@ -108,7 +108,7 @@ public class CommonServerApplicationTests {
                 try {
                     Class testClass = JavassistFactory.create()
                             .className("Test")
-                            .field(String.class, "test")
+                            .field( "test", String.class)
                             .buildClass();
                     countDownLatch.countDown();
                 } catch (Exception e) {
@@ -127,7 +127,7 @@ public class CommonServerApplicationTests {
         CountDownLatch countDownLatch = new CountDownLatch(1000);
         Class class1 = JavassistFactory.create()
                 .className("Test1")
-                .field(String.class, "prop")
+                .field( "prop", String.class)
                 .buildClass();
         for (int i = 0; i < 1000; i++) {
             threadPoolExecutor.execute(() -> {
@@ -135,7 +135,7 @@ public class CommonServerApplicationTests {
                     Class class2 = JavassistFactory.create()
                             .className("Test2")
                             .similarClassName(class1.getSimpleName())
-                            .similarClass();
+                            .buildClass();
                     countDownLatch.countDown();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -157,6 +157,13 @@ public class CommonServerApplicationTests {
                     map.put("" + Math.random(), "" + Math.random());
                     System.out.println(1 / 0);
                 });
+        System.out.println();
+    }
+
+    @Test
+    public void test14() {
+        String str = "A";
+        String res = str.substring(0, 1) + str.substring(1);
         System.out.println();
     }
 
