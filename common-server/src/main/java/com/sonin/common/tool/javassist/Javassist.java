@@ -3,6 +3,7 @@ package com.sonin.common.tool.javassist;
 import javassist.*;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Javassist {
 
-    private static final Map<String, Class> cache = new ConcurrentHashMap<>();
+    private static final Map<String, Class> cache = new HashMap<>();
 
     private String className;
 

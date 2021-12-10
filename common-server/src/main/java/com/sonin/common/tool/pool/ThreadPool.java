@@ -97,7 +97,7 @@ public class ThreadPool {
         return this;
     }
 
-    private ThreadPoolExecutor build() {
+    public ThreadPoolExecutor build() {
         String threadPoolName = this.threadPoolName;
         Boolean daemon = this.daemon;
         Integer priority = this.priority;
