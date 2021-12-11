@@ -8,6 +8,7 @@
 * swagger-server: 6005
 * sentinel-server: 6006
 * common-server: 6007
+* kafka-api: 6008
 
 
 #### git Unable to access ‘https://github.com/xxxx/xxxx.git/’:OpenSSL SSL_read:Connection was reset

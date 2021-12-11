@@ -28,6 +28,7 @@
         <module>sentinel-server</module>
         <module>leetcode-api</module>
         <module>common-server</module>
+        <module>kafka-api</module>
     </modules>
 
 </project>

@@ -96,6 +96,22 @@ logging:
   level:
     root: info
 
+custom:
+  kafka:
+    topic: test1
+    bootstrap-servers: 192.168.2.123:9092,192.168.2.123:19092,192.168.2.123:29092
+    consumer:
+      # 指定默认消费者group id
+      group-id: DD
+      # 是否自动提交偏移量
+      enable-auto-commit: false
+      # auto-offset-reset: earliest
+      auto-offset-reset: latest
+      session-timeout-ms: 30000
+      max-poll-records: 10
+      key-serializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-serializer: org.apache.kafka.common.serialization.StringDeserializer
+
 # 生成代码
 generate-code:
   # 全局配置
@@ -119,11 +135,11 @@ generate-code:
   # 包配置
   package-config:
     # 父包(必填)
-    parent: com.sonin.common.module.demo
+    parent: com.sonin.common.modules.consumer
   # 策略配置
   strategy-config:
     # 表名: ','分割(必填)
-    include: demo_a,demo_b,demo_c,demo_d
+    include: consumer_test
 
 
 

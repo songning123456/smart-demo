@@ -3,6 +3,7 @@ package com.sonin.common;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sonin.common.entity.EquipmentRepairAndChild;
 import com.sonin.common.modules.common.mapper.CommonSqlMapper;
+import com.sonin.common.modules.consumer.starter.KafkaApplicationRunner;
 import com.sonin.common.modules.demo.entity.DemoA;
 import com.sonin.common.modules.demo.entity.DemoB;
 import com.sonin.common.modules.demo.entity.DemoC;
@@ -16,8 +17,10 @@ import com.sonin.common.tool.pool.ThreadPoolFactory;
 import com.sonin.common.tool.util.JoinSqlUtils;
 import javassist.*;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -29,6 +32,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @author sonin
  * @date 2021/10/2 12:18
  */
+@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
 public class CommonServerApplicationTests {
 

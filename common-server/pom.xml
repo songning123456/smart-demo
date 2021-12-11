@@ -78,6 +78,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+        <!-- 解析yaml -->
         <dependency>
             <groupId>dom4j</groupId>
             <artifactId>dom4j</artifactId>
@@ -114,6 +115,29 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.21.0-GA</version>
+        </dependency>
+        <!-- kafka -->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_2.12</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-streams</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <!-- fastjson -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.59</version>
         </dependency>
     </dependencies>
 
