@@ -3,7 +3,7 @@
 <mapper namespace="com.sonin.common.module.consumer.mapper.ConsumerTestMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.sonin.common.modules.consumer.entity.ConsumerTest">
+    <resultMap id="BaseResultMap" type="com.sonin.common.modules.kafka.entity.KafkaData">
         <id column="id" property="id"/>
         <result column="name" property="name"/>
     </resultMap>

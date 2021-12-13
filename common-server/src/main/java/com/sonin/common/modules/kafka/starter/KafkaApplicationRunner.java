@@ -1,6 +1,6 @@
-package com.sonin.common.modules.consumer.starter;
+package com.sonin.common.modules.kafka.starter;
 
-import com.sonin.common.modules.consumer.component.CustomKafkaConsumer;
+import com.sonin.common.modules.kafka.component.CustomKafkaConsumer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;

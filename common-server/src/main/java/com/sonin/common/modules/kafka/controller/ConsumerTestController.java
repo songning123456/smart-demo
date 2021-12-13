@@ -1,4 +1,4 @@
-package com.sonin.common.modules.consumer.controller;
+package com.sonin.common.modules.kafka.controller;
 
 
 import org.springframework.web.bind.annotation.RequestMapping;

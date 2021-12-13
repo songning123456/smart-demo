@@ -1,9 +1,9 @@
-package com.sonin.common.modules.consumer.component;
+package com.sonin.common.modules.kafka.component;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.sonin.common.modules.consumer.entity.ConsumerTest;
-import com.sonin.common.modules.consumer.service.IConsumerTestService;
+import com.sonin.common.modules.kafka.entity.KafkaData;
+import com.sonin.common.modules.kafka.service.IKafkaDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -30,7 +30,7 @@ public class CustomKafkaConsumer implements Runnable {
     private String topic;
 
     @Autowired
-    private IConsumerTestService consumerTestService;
+    private IKafkaDataService kafkaDataService;
 
     public CustomKafkaConsumer(@Value("${custom.kafka.bootstrap-servers}") String bootstrapServers,
                                @Value("${custom.kafka.consumer.group-id}") String groupId,
@@ -77,8 +77,8 @@ public class CustomKafkaConsumer implements Runnable {
     }
 
     /**
-     * kafka的 (partition + offset) 确定唯一索引
-     * alter table tableName add unique key `kafka_unique_index` (`kafka_partition`,`kafka_offset`)
+     * kafka的 (topic + partition + offset) 确定唯一索引
+     * alter table tableName add unique key `kafka_unique_index` (`kafka_topic`,`kafka_partition`,`kafka_offset`)
      */
     private void consume() {
         try {
@@ -88,15 +88,16 @@ public class CustomKafkaConsumer implements Runnable {
                 if (consumerRecords != null && !consumerRecords.isEmpty()) {
                     for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
                         log.info("当前消费数据: {}", consumerRecord.value());
-                        ConsumerTest consumerTest = JSONObject.parseObject(consumerRecord.value(), ConsumerTest.class);
+                        KafkaData kafkaData = JSONObject.parseObject(consumerRecord.value(), KafkaData.class);
                         try {
-                            consumerTest.setKafkaPartition(consumerRecord.partition());
-                            consumerTest.setKafkaOffset(consumerRecord.offset());
-                            consumerTest.setKafkaTimestamp(consumerRecord.timestamp());
-                            consumerTestService.save(consumerTest);
+                            kafkaData.setKafkaTopic(consumerRecord.topic());
+                            kafkaData.setKafkaPartition(consumerRecord.partition());
+                            kafkaData.setKafkaOffset(consumerRecord.offset());
+                            kafkaData.setKafkaTimestamp(consumerRecord.timestamp());
+                            kafkaDataService.save(kafkaData);
                         } catch (Exception e) {
                             if (e.getMessage().contains("Duplicate entry")) {
-                                log.error("kafka重复消费数据: {}", JSON.toJSON(consumerTest));
+                                log.error("kafka重复消费数据: {}", JSON.toJSON(kafkaData));
                             } else {
                                 e.printStackTrace();
                             }

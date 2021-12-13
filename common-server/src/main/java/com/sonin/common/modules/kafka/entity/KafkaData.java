@@ -1,4 +1,4 @@
-package com.sonin.common.modules.consumer.entity;
+package com.sonin.common.modules.kafka.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -12,12 +12,14 @@ import lombok.Data;
  * @since 2021-12-11
  */
 @Data
-@TableName("consumer_test")
-public class ConsumerTest {
+@TableName("kafka_data")
+public class KafkaData {
 
     private String id;
 
     private String name;
+
+    private String kafkaTopic;
 
     private Integer kafkaPartition;
 
