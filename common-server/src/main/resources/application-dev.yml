@@ -50,15 +50,26 @@ spring:
         connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
       datasource:
         master:
-          url: jdbc:mysql://192.168.2.126:3306/smart-demo?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-          username: root
-          password: 123456
+          # 曹县DEV
+#          url: jdbc:mysql://123.56.9.196:6003/zhsw-caoxian?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+#          username: root
+#          password: jkauto@123
+#          driver-class-name: com.mysql.jdbc.Driver
+          # 曹县PRO
+          url: jdbc:mysql://rm-bp151339942j3h9ispo.mysql.rds.aliyuncs.com/zhsw-caoxian?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+          username: jk_ser_process
+          password: server_2021_%Jkcxrw
           driver-class-name: com.mysql.jdbc.Driver
-        slave:
-          url: jdbc:mysql://192.168.2.126:3306/smart-demo?characterEncoding=UTF-8&useUnicode=true&useSSL=false
-          username: root
-          password: 123456
-          driver-class-name: com.mysql.jdbc.Driver
+#        slave:
+#          url: jdbc:mysql://192.168.2.126:3306/smart-demo?characterEncoding=UTF-8&useUnicode=true&useSSL=false
+#          username: root
+#          password: 123456
+#          driver-class-name: com.mysql.jdbc.Driver
+#        pg-db:
+#          url: jdbc:postgresql://118.190.97.62:10086/postgres?useUnicode=true&characterEncoding=UTF8
+#          username: postgres
+#          password: Jkpostgres@zz
+#          driver-class-name: org.postgresql.Driver
   # Redis配置
   redis:
     host: 192.168.2.126

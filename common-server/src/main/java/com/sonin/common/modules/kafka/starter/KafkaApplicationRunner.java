@@ -20,8 +20,8 @@ public class KafkaApplicationRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        Thread kafkaConsumerThread = new Thread(customKafkaConsumer);
-        kafkaConsumerThread.start();
+//        Thread kafkaConsumerThread = new Thread(customKafkaConsumer);
+//        kafkaConsumerThread.start();
     }
 
 }
