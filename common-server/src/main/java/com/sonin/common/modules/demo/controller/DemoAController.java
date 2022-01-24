@@ -152,4 +152,19 @@ public class DemoAController {
         System.out.println(res);
     }
 
+    @GetMapping("/outMemory")
+    public Result<Object> outMemoryCtrl() {
+        Result<Object> result = new Result<>();
+        ArrayList<DemoA> list = new ArrayList<>();
+        try {
+            while (true) {
+                list.add(new DemoA());
+            }
+        } catch (Error e) {
+            e.printStackTrace();
+        }
+        result.setResult(list);
+        return result;
+    }
+
 }
