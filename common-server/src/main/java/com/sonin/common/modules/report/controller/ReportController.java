@@ -2,6 +2,7 @@ package com.sonin.common.modules.report.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sonin.common.constant.Result;
+import com.sonin.common.modules.report.dto.ReportDTO;
 import com.sonin.common.modules.report.entity.FReportItem;
 import com.sonin.common.modules.report.entity.FReportItemv;
 import com.sonin.common.modules.report.service.IFReportItemService;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 报表数据项管理
@@ -33,6 +35,36 @@ public class ReportController {
     private IFReportItemService ifReportItemService;
     @Autowired
     private IFReportItemvService ifReportItemvService;
+
+    @PostMapping("/insertData")
+    public Result<Object> insertDataCtrl(@RequestBody ReportDTO reportDTO) throws Exception {
+        Result<Object> result = new Result<>();
+        if (StringUtils.isNotEmpty(reportDTO.getReitId())) {
+            QueryWrapper<FReportItemv> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("reit_id", reportDTO.getReitId())
+                    .eq("factory_id", reportDTO.getFactoryId());
+            List<FReportItemv> fReportItemvList = ifReportItemvService.list(queryWrapper);
+            List<String> dataTimeList = fReportItemvList.stream().map(FReportItemv::getDataTime).collect(Collectors.toList());
+            String startTime = reportDTO.getStartTime();
+            String endTime = reportDTO.getEndTime();
+            Date startDate = DateUtils.parse(startTime, "yyyy-MM-dd");
+            Date endDate = DateUtils.parse(endTime, "yyyy-MM-dd");
+            Date indexDate = startDate;
+            while (indexDate.compareTo(endDate) <= 0) {
+                String dataTime = DateUtils.format(indexDate, "yyyy-MM-dd");
+                if (!dataTimeList.contains(dataTime)) {
+                    FReportItemv fReportItemv = new FReportItemv();
+                    fReportItemv.setDataTime(dataTime);
+                    fReportItemv.setItemValue(reportDTO.getItemValue());
+                    fReportItemv.setReitId(reportDTO.getReitId());
+                    fReportItemv.setFactoryId(reportDTO.getFactoryId());
+                    ifReportItemvService.save(fReportItemv);
+                }
+                indexDate = increaseDay(indexDate);
+            }
+        }
+        return result;
+    }
 
     @PostMapping("/importExcel")
     public Result<Object> importExcelCtrl(HttpServletRequest request) throws Exception {
@@ -251,4 +283,16 @@ public class ReportController {
         }
     }
 
+    /**
+     * 往后推1天
+     *
+     * @param date
+     * @return
+     */
+    private Date increaseDay(Date date) {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        calendar.add(Calendar.DATE, 1); //把日期往后增加一天,整数  往后推,负数往前移动
+        return calendar.getTime(); //这个时间就是日期往后推一天的结果
+    }
 }
