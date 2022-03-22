@@ -8,6 +8,7 @@ import com.sonin.common.modules.common.service.ICommonSqlService;
 import com.sonin.common.modules.common.service.ICrudSqlService;
 import com.sonin.common.modules.demo.dto.DemoDTO;
 import com.sonin.common.modules.demo.dto.DemoRelationDTO;
+import com.sonin.common.modules.demo.dto.MultiDemoDTO;
 import com.sonin.common.modules.demo.entity.*;
 import com.sonin.common.modules.demo.vo.DemoVO;
 import com.sonin.common.tool.query.WrapperFactory;
@@ -140,6 +141,14 @@ public class DemoController {
                 .queryDBForPage(new Page(1, 10), "master", "");
         List<Map<String, Object>> resList = WrapperFactory.result()
                 .maps2MapsWithoutPrefix(joinMapList);
+        return result;
+    }
+
+    @GetMapping("/testMulti")
+    public Result<Object> testMultiCtrl(MultiDemoDTO multiDemoDTO) throws Exception {
+        Result<Object> result = new Result<>();
+        Map<String, Map<String, Object>> className2EntityMap = com.sonin.base.utils.BeanExtUtils.bean2MultiMap(multiDemoDTO);
+        result.setResult(className2EntityMap);
         return result;
     }
 
